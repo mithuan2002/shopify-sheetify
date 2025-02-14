@@ -40,12 +40,12 @@ const Index = () => {
     });
   };
 
-  const handleSetupComplete = async (sheetUrl: string, selectedTemplate: string, whatsappNumber: string) => {
+  const handleSetupComplete = async (sheetUrl: string, selectedTemplate: string, whatsappNumber: string, storeName: string, products: any[]) => {
     try {
-      const fetchedProducts = await fetchProductsFromSheet(sheetUrl);
-      setProducts(fetchedProducts);
+      setProducts(products);
       setTemplate(selectedTemplate);
       localStorage.setItem('shopkeeperWhatsapp', whatsappNumber.replace(/[^0-9+]/g, ''));
+      localStorage.setItem('storeName', storeName);
       setIsSetupComplete(true);
       toast({
         title: "Store Created!",
@@ -54,7 +54,7 @@ const Index = () => {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to load products from your sheet. Please try again.",
+        description: "Failed to create your store. Please try again.",
         variant: "destructive",
       });
     }
