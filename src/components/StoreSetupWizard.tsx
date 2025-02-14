@@ -89,21 +89,56 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
                 onClick={() => setTemplate("minimal")}
                 className={template === "minimal" ? "border-primary" : ""}
               >
-                Minimal
+                Minimal - Clean and simple design
               </Button>
               <Button
                 variant="outline"
                 onClick={() => setTemplate("elegant")}
                 className={template === "elegant" ? "border-primary" : ""}
               >
-                Elegant
+                Elegant - Sophisticated serif typography
               </Button>
               <Button
                 variant="outline"
                 onClick={() => setTemplate("modern")}
                 className={template === "modern" ? "border-primary" : ""}
               >
-                Modern
+                Modern - Vibrant gradients and bold text
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setTemplate("boutique")}
+                className={template === "boutique" ? "border-primary" : ""}
+              >
+                Boutique - Soft colors and feminine style
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setTemplate("vintage")}
+                className={template === "vintage" ? "border-primary" : ""}
+              >
+                Vintage - Classic and timeless appeal
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setTemplate("luxury")}
+                className={template === "luxury" ? "border-primary" : ""}
+              >
+                Luxury - Dark mode with elegant typography
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setTemplate("minimal-dark")}
+                className={template === "minimal-dark" ? "border-primary" : ""}
+              >
+                Minimal Dark - Sleek dark mode design
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setTemplate("artisan")}
+                className={template === "artisan" ? "border-primary" : ""}
+              >
+                Artisan - Handcrafted, organic feel
               </Button>
             </div>
             <Button 

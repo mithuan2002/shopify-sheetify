@@ -56,7 +56,13 @@ const Index = () => {
   }
 
   return (
-    <div className={`min-h-screen bg-background ${template === "elegant" ? "font-serif" : "font-sans"}`}>
+    <div className={`min-h-screen bg-background ${
+      template === "luxury" || template === "minimal-dark" ? "bg-gray-900" : 
+      template === "boutique" ? "bg-rose-50" :
+      template === "vintage" ? "bg-amber-50" :
+      template === "artisan" ? "bg-stone-100" :
+      "bg-white"
+    }`}>
       <StoreHeader
         storeName="Your Beautiful Store"
         template={template}
@@ -70,6 +76,7 @@ const Index = () => {
             <ProductCard
               key={product.id}
               {...product}
+              template={template}
               isOwner={isOwner}
               onEdit={() => handleEdit(product.id)}
               onDelete={() => handleDelete(product.id)}
