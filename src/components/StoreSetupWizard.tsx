@@ -55,7 +55,23 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
   };
 
   const nextStep = () => {
+    if (step === 2 && !template) {
+      toast({
+        title: "Please select a template",
+        description: "Choose a template for your store before proceeding",
+        variant: "destructive",
+      });
+      return;
+    }
     setStep(step + 1);
+  };
+
+  const handleTemplateSelect = (selectedTemplate: string) => {
+    setTemplate(selectedTemplate);
+    toast({
+      title: "Template Selected",
+      description: "Your store template has been updated.",
+    });
   };
 
   const handleEditProduct = (product) => {
@@ -116,6 +132,20 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
           </div>
         ) : step === 2 ? (
           <div className="space-y-4">
+            <h2 className="text-2xl font-serif mb-4">Choose Your Store Template</h2>
+            <div className="grid grid-cols-2 gap-4">
+              {["minimal", "elegant", "modern", "boutique", "vintage", "luxury", "minimal-dark", "artisan"].map((templateOption) => (
+                <Button
+                  key={templateOption}
+                  variant={template === templateOption ? "default" : "outline"}
+                  className="w-full capitalize"
+                  onClick={() => handleTemplateSelect(templateOption)}
+                >
+                  {templateOption}
+                </Button>
+              ))}
+            </div>
+            <Button onClick={nextStep} className="w-full mt-4">Next</Button>
             <h2 className="text-2xl font-serif mb-4">Edit Store Name</h2>
             <Input
               placeholder="Enter your Store Name"
