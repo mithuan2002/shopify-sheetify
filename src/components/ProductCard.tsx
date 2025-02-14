@@ -16,6 +16,8 @@ interface ProductCardProps {
   template?: string;
 }
 
+import { useCart } from "@/context/CartContext";
+
 export const ProductCard = ({ 
   id, 
   name, 
@@ -27,6 +29,7 @@ export const ProductCard = ({
   isOwner = false,
   template = "minimal" 
 }: ProductCardProps) => {
+  const { addToCart } = useCart();
   const [isHovered, setIsHovered] = useState(false);
 
   const getCardClasses = () => {
@@ -124,6 +127,14 @@ export const ProductCard = ({
             {description}
           </p>
           <p className={getPriceClasses()}>${price.toFixed(2)}</p>
+      {!isOwner && (
+        <Button 
+          onClick={() => addToCart({ id, name, price })}
+          className="w-full mt-2"
+        >
+          Add to Cart
+        </Button>
+      )}
           
           {isOwner && (
             <div className={`absolute right-2 top-2 flex gap-2 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
