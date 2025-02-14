@@ -72,7 +72,7 @@ const Index = () => {
   }
 
   return (
-    <div className={`min-h-screen bg-background ${
+    <div className={`min-h-screen ${
       template === "luxury" || template === "minimal-dark" ? "bg-gray-900" : 
       template === "boutique" ? "bg-rose-50" :
       template === "vintage" ? "bg-amber-50" :
