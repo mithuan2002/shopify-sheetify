@@ -24,18 +24,12 @@ const TEMPLATE_STYLES = {
 
 const TEMPLATE_OPTIONS = Object.keys(TEMPLATE_STYLES);
 
-export const StoreHeader = ({ storeName, template, onTemplateChange, onStoreNameChange, isOwner = false }: StoreHeaderProps) => {
-  const { toast } = useToast();
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedName, setEditedName] = useState(storeName);
-
-  const handleTemplateChange = (newTemplate: string) => {
-    onTemplateChange(newTemplate);
-    toast({
-      title: "Template Updated",
-      description: "Your store's appearance has been updated."
-    });
-  };
+export const StoreHeader = ({ storeName }: StoreHeaderProps) => {
+  return (
+    <header className="w-full py-4 px-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <h1 className="text-2xl font-bold text-center">{storeName}</h1>
+    </header>
+  );
 
   return (
     <header className={TEMPLATE_STYLES[template] || TEMPLATE_STYLES.minimal}>

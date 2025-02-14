@@ -68,7 +68,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
 
   const handleTemplateSelect = (selectedTemplate: string) => {
     setTemplate(selectedTemplate);
-    // Update document body class for immediate preview
+    // Update preview immediately
     document.body.className = `${
       selectedTemplate === "luxury" || selectedTemplate === "minimal-dark" ? "bg-gray-900" : 
       selectedTemplate === "boutique" ? "bg-rose-50" :
@@ -76,10 +76,12 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
       selectedTemplate === "artisan" ? "bg-stone-100" :
       "bg-white"
     }`;
-    toast({
-      title: "Template Selected",
-      description: "Your store template has been updated.",
-    });
+    
+    // Apply template-specific styles for preview
+    const previewContainer = document.getElementById('preview-container');
+    if (previewContainer) {
+      previewContainer.className = `preview ${selectedTemplate}`;
+    }
   };
 
   const handleEditProduct = (product) => {

@@ -10,11 +10,9 @@ import { Cart } from "@/components/Cart";
 
 const Index = () => {
   const [products, setProducts] = useState([]);
-  const [template, setTemplate] = useState("minimal");
-  const [isOwner] = useState(true);
+  const [template] = useState("minimal");
   const [isSetupComplete, setIsSetupComplete] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
-  const [isEditingStoreName, setIsEditingStoreName] = useState(false);
   const { toast } = useToast();
 
   const handleEdit = (product) => {
