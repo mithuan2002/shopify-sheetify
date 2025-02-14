@@ -4,6 +4,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { StoreHeader } from "@/components/StoreHeader";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { StoreSetupWizard } from "@/components/StoreSetupWizard";
 
 // Temporary mock data - will be replaced with Google Sheets data
 const mockProducts = [
@@ -33,7 +34,8 @@ const mockProducts = [
 const Index = () => {
   const [products, setProducts] = useState(mockProducts);
   const [template, setTemplate] = useState("minimal");
-  const [isOwner] = useState(true); // This will be replaced with actual authentication
+  const [isOwner] = useState(true);
+  const [isSetupComplete, setIsSetupComplete] = useState(false);
   const { toast } = useToast();
 
   const handleEdit = (id: string) => {
@@ -50,6 +52,25 @@ const Index = () => {
       description: "The product has been removed from your store.",
     });
   };
+
+  const handleSetupComplete = (sheetUrl: string, selectedTemplate: string) => {
+    // Here we'll add the actual Google Sheets data fetching
+    // For now, we'll use mock data
+    setTemplate(selectedTemplate);
+    setIsSetupComplete(true);
+    toast({
+      title: "Store Created!",
+      description: "Your store has been created successfully.",
+    });
+  };
+
+  if (!isSetupComplete) {
+    return (
+      <div className="min-h-screen bg-background py-16">
+        <StoreSetupWizard onComplete={handleSetupComplete} />
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen bg-background ${template === "elegant" ? "font-serif" : "font-sans"}`}>
@@ -72,22 +93,6 @@ const Index = () => {
             />
           ))}
         </div>
-
-        {isOwner && (
-          <div className="mt-8 text-center">
-            <Button
-              onClick={() => {
-                toast({
-                  title: "Coming Soon",
-                  description: "Google Sheets integration will be added in the next update.",
-                });
-              }}
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              Connect Google Sheet
-            </Button>
-          </div>
-        )}
       </main>
     </div>
   );
