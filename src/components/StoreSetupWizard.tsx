@@ -68,6 +68,14 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
 
   const handleTemplateSelect = (selectedTemplate: string) => {
     setTemplate(selectedTemplate);
+    // Update document body class for immediate preview
+    document.body.className = `${
+      selectedTemplate === "luxury" || selectedTemplate === "minimal-dark" ? "bg-gray-900" : 
+      selectedTemplate === "boutique" ? "bg-rose-50" :
+      selectedTemplate === "vintage" ? "bg-amber-50" :
+      selectedTemplate === "artisan" ? "bg-stone-100" :
+      "bg-white"
+    }`;
     toast({
       title: "Template Selected",
       description: "Your store template has been updated.",
