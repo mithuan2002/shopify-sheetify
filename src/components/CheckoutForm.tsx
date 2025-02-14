@@ -18,7 +18,8 @@ export const CheckoutForm = ({ onClose }: { onClose: () => void }) => {
 
     const message = `New Order!\n\nCustomer: ${name}\nPhone: ${phone}\n\nOrder Details:\n${orderDetails}\n\nTotal: $${total.toFixed(2)}`;
     
-    const whatsappUrl = `https://wa.me/+919876543210?text=${encodeURIComponent(message)}`;
+    const shopkeeperNumber = localStorage.getItem('shopkeeperWhatsapp') || '';
+    const whatsappUrl = `https://wa.me/${shopkeeperNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
     onClose();
   };

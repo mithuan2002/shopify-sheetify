@@ -30,11 +30,12 @@ const Index = () => {
     });
   };
 
-  const handleSetupComplete = async (sheetUrl: string, selectedTemplate: string) => {
+  const handleSetupComplete = async (sheetUrl: string, selectedTemplate: string, whatsappNumber: string) => {
     try {
       const fetchedProducts = await fetchProductsFromSheet(sheetUrl);
       setProducts(fetchedProducts);
       setTemplate(selectedTemplate);
+      localStorage.setItem('shopkeeperWhatsapp', whatsappNumber.replace(/[^0-9+]/g, ''));
       setIsSetupComplete(true);
       toast({
         title: "Store Created!",

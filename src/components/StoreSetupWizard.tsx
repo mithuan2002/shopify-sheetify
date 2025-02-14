@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,13 +6,14 @@ import { motion } from "framer-motion";
 import { fetchProductsFromSheet } from "@/utils/googleSheets";
 
 interface StoreSetupWizardProps {
-  onComplete: (sheetUrl: string, template: string) => void;
+  onComplete: (sheetUrl: string, template: string, whatsappNumber: string) => void;
 }
 
 export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
   const [step, setStep] = useState(1);
   const [sheetUrl, setSheetUrl] = useState("");
   const [template, setTemplate] = useState("minimal");
+  const [whatsappNumber, setWhatsappNumber] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -47,8 +47,12 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
     }
   };
 
+  const nextStep = () => {
+    setStep(step + 1);
+  };
+
   const handleCreateStore = () => {
-    onComplete(sheetUrl, template);
+    onComplete(sheetUrl, template, whatsappNumber);
   };
 
   return (
@@ -80,7 +84,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
               {isLoading ? "Connecting..." : "Connect Sheet"}
             </Button>
           </div>
-        ) : (
+        ) : step === 2 ? (
           <div className="space-y-4">
             <h2 className="text-2xl font-serif mb-4">Choose Your Store Template</h2>
             <div className="grid gap-4">
@@ -140,6 +144,27 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
               >
                 Artisan - Handcrafted, organic feel
               </Button>
+            </div>
+            <Button 
+                onClick={nextStep}
+                className="w-full"
+              >
+                Next
+              </Button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-serif mb-4">Enter Your WhatsApp Number</h2>
+            <div className="space-y-2">
+              <Input
+                placeholder="WhatsApp Number (with country code)"
+                value={whatsappNumber}
+                onChange={(e) => setWhatsappNumber(e.target.value)}
+                className="w-full"
+              />
+              <p className="text-sm text-muted-foreground">
+                Your customers' orders will be sent to this number
+              </p>
             </div>
             <Button 
               onClick={handleCreateStore}
