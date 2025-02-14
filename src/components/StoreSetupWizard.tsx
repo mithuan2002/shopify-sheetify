@@ -4,6 +4,9 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
 import { fetchProductsFromSheet } from "@/utils/googleSheets";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 interface StoreSetupWizardProps {
   onComplete: (sheetUrl: string, template: string, whatsappNumber: string, storeName: string, products: any[]) => void;
@@ -121,20 +124,85 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
               className="w-full mb-4"
             />
             <h2 className="text-2xl font-serif mb-4">Edit/Delete Products</h2>
-            {products.map((product) => (
-              <div key={product.id} className="border p-4 mb-4">
-                <h3>{product.name}</h3>
-                <p>Price: {product.price}</p>
-                <p>Description: {product.description}</p>
-                <p>Image URL: {product.imageUrl}</p>
-                <Button onClick={() => handleEditProduct(product)}>Edit</Button>
-                <Button onClick={() => handleDeleteProduct(product.id)}>Delete</Button>
-              </div>
-            ))}
+            <div className="grid gap-4">
+              {products.map((product) => (
+                <div key={product.id} className="bg-white rounded-lg shadow-md p-6 space-y-4 transition-all hover:shadow-lg">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">{product.name}</h3>
+                    <div className="space-x-2">
+                      <Button variant="outline" size="sm" onClick={() => handleEditProduct(product)}>
+                        Edit
+                      </Button>
+                      <Button variant="destructive" size="sm" onClick={() => handleDeleteProduct(product.id)}>
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-500">Price</p>
+                      <p className="font-medium">${product.price}</p>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-500">Image</p>
+                      <img src={product.imageUrl} alt={product.name} className="w-20 h-20 object-cover rounded" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-500">Description</p>
+                    <p className="text-sm">{product.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
             {editingProduct && (
-              <div>
-                {/* Add form to edit product here */}
-              </div>
+              <Dialog open={!!editingProduct} onOpenChange={() => setEditingProduct(null)}>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Edit Product</DialogTitle>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="name">Name</Label>
+                      <Input
+                        id="name"
+                        value={editingProduct.name}
+                        onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="price">Price</Label>
+                      <Input
+                        id="price"
+                        type="number"
+                        value={editingProduct.price}
+                        onChange={(e) => setEditingProduct({...editingProduct, price: parseFloat(e.target.value)})}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="description">Description</Label>
+                      <Textarea
+                        id="description"
+                        value={editingProduct.description}
+                        onChange={(e) => setEditingProduct({...editingProduct, description: e.target.value})}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="imageUrl">Image URL</Label>
+                      <Input
+                        id="imageUrl"
+                        value={editingProduct.imageUrl}
+                        onChange={(e) => setEditingProduct({...editingProduct, imageUrl: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setEditingProduct(null)}>Cancel</Button>
+                    <Button onClick={() => handleUpdateProduct(editingProduct)}>Save changes</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             )}
 
             <Button onClick={nextStep} className="w-full">Next</Button>
