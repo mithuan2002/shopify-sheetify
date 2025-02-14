@@ -1,2 +1,4 @@
-// Re-export from ui component
-export { useToast } from "@/components/ui/use-toast";
+
+import { useToast as useToastUI } from "@/components/ui/use-toast";
+
+export const useToast = useToastUI;
