@@ -6,6 +6,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { StoreSetupWizard } from "@/components/StoreSetupWizard";
 import { fetchProductsFromSheet } from "@/utils/googleSheets";
 
+import { Cart } from "@/components/Cart";
+
 const Index = () => {
   const [products, setProducts] = useState([]);
   const [template, setTemplate] = useState("minimal");
@@ -49,7 +51,10 @@ const Index = () => {
 
   if (!isSetupComplete) {
     return (
-      <div className="min-h-screen bg-background py-16">
+      <div className="min-h-screen bg-background py-16 relative">
+        <div className="fixed top-4 right-4 z-50">
+          <Cart />
+        </div>
         <StoreSetupWizard onComplete={handleSetupComplete} />
       </div>
     );
