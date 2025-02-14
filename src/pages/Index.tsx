@@ -78,10 +78,8 @@ const Index = () => {
       "bg-white"
     }`}>
       <StoreHeader
-        storeName="Your Beautiful Store"
+        storeName={localStorage.getItem('storeName') || "Your Beautiful Store"}
         template={template}
-        onTemplateChange={setTemplate}
-        isOwner={isOwner}
       />
       
       <main className="container max-w-6xl mx-auto px-4 pb-16">

@@ -1,2 +1,5 @@
 
-export { useToast, toast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toast"
+
+export { toast } from "@/components/ui/use-toast"
+export { useToast }
