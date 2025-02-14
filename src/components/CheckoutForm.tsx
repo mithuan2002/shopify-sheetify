@@ -18,7 +18,7 @@ export const CheckoutForm = ({ onClose }: { onClose: () => void }) => {
 
     const message = `New Order!\n\nCustomer: ${name}\nPhone: ${phone}\n\nOrder Details:\n${orderDetails}\n\nTotal: $${total.toFixed(2)}`;
     
-    const whatsappUrl = `https://wa.me/YOUR_PHONE_NUMBER_HERE?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/+919876543210?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
     onClose();
   };
