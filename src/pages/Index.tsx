@@ -2,37 +2,12 @@
 import { useState } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { StoreHeader } from "@/components/StoreHeader";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { StoreSetupWizard } from "@/components/StoreSetupWizard";
-
-// Temporary mock data - will be replaced with Google Sheets data
-const mockProducts = [
-  {
-    id: "1",
-    name: "Premium Product 1",
-    price: 99.99,
-    description: "High-quality premium product with amazing features.",
-    image: "/placeholder.svg",
-  },
-  {
-    id: "2",
-    name: "Elegant Item 2",
-    price: 149.99,
-    description: "Elegantly designed item perfect for your needs.",
-    image: "/placeholder.svg",
-  },
-  {
-    id: "3",
-    name: "Luxury Product 3",
-    price: 199.99,
-    description: "Luxurious product with outstanding quality.",
-    image: "/placeholder.svg",
-  },
-];
+import { fetchProductsFromSheet } from "@/utils/googleSheets";
 
 const Index = () => {
-  const [products, setProducts] = useState(mockProducts);
+  const [products, setProducts] = useState([]);
   const [template, setTemplate] = useState("minimal");
   const [isOwner] = useState(true);
   const [isSetupComplete, setIsSetupComplete] = useState(false);
@@ -41,27 +16,35 @@ const Index = () => {
   const handleEdit = (id: string) => {
     toast({
       title: "Edit Product",
-      description: "Edit functionality will be implemented with Google Sheets integration.",
+      description: "To edit products, update them in your Google Sheet.",
     });
   };
 
   const handleDelete = (id: string) => {
     setProducts(products.filter(product => product.id !== id));
     toast({
-      title: "Product Deleted",
-      description: "The product has been removed from your store.",
+      title: "Product Hidden",
+      description: "The product has been hidden from your store. To permanently remove it, delete it from your Google Sheet.",
     });
   };
 
-  const handleSetupComplete = (sheetUrl: string, selectedTemplate: string) => {
-    // Here we'll add the actual Google Sheets data fetching
-    // For now, we'll use mock data
-    setTemplate(selectedTemplate);
-    setIsSetupComplete(true);
-    toast({
-      title: "Store Created!",
-      description: "Your store has been created successfully.",
-    });
+  const handleSetupComplete = async (sheetUrl: string, selectedTemplate: string) => {
+    try {
+      const fetchedProducts = await fetchProductsFromSheet(sheetUrl);
+      setProducts(fetchedProducts);
+      setTemplate(selectedTemplate);
+      setIsSetupComplete(true);
+      toast({
+        title: "Store Created!",
+        description: "Your store has been created successfully with your products.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load products from your sheet. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (!isSetupComplete) {

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
+import { fetchProductsFromSheet } from "@/utils/googleSheets";
 
 interface StoreSetupWizardProps {
   onComplete: (sheetUrl: string, template: string) => void;
@@ -28,14 +29,17 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
 
     setIsLoading(true);
     try {
-      // Here we'll add the actual Google Sheets API call
-      // For now, we'll simulate loading
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Try to fetch products from the sheet
+      await fetchProductsFromSheet(sheetUrl);
       setStep(2);
+      toast({
+        title: "Success!",
+        description: "Successfully connected to your Google Sheet.",
+      });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to connect to Google Sheet",
+        description: "Make sure your Google Sheet is publicly accessible and contains the correct columns: Name, Price, Description, Image URL",
         variant: "destructive",
       });
     } finally {
@@ -65,7 +69,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
                 className="w-full"
               />
               <p className="text-sm text-muted-foreground">
-                Make sure your sheet is publicly accessible and contains product details
+                Your sheet should have these columns: Name, Price, Description, Image URL
               </p>
             </div>
             <Button 
