@@ -13,12 +13,22 @@ const Index = () => {
   const [template, setTemplate] = useState("minimal");
   const [isOwner] = useState(true);
   const [isSetupComplete, setIsSetupComplete] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [isEditingStoreName, setIsEditingStoreName] = useState(false);
   const { toast } = useToast();
 
-  const handleEdit = (id: string) => {
+  const handleEdit = (product) => {
+    setEditingProduct(product);
+  };
+
+  const handleUpdateProduct = (updatedProduct) => {
+    setProducts(products.map(p => 
+      p.id === updatedProduct.id ? updatedProduct : p
+    ));
+    setEditingProduct(null);
     toast({
-      title: "Edit Product",
-      description: "To edit products, update them in your Google Sheet.",
+      title: "Product Updated",
+      description: "Product details have been updated successfully.",
     });
   };
 

@@ -9,8 +9,10 @@ interface StoreHeaderProps {
   isOwner?: boolean;
 }
 
-export const StoreHeader = ({ storeName, template, onTemplateChange, isOwner = false }: StoreHeaderProps) => {
+export const StoreHeader = ({ storeName, template, onTemplateChange, onStoreNameChange, isOwner = false }: StoreHeaderProps) => {
   const { toast } = useToast();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedName, setEditedName] = useState(storeName);
 
   const handleTemplateChange = (newTemplate: string) => {
     onTemplateChange(newTemplate);
@@ -69,7 +71,37 @@ export const StoreHeader = ({ storeName, template, onTemplateChange, isOwner = f
   return (
     <header className={getHeaderClasses(template)}>
       <div className="container max-w-6xl mx-auto px-4">
-        <h1 className={`mb-4 text-center ${getStoreNameClasses(template)}`}>{storeName}</h1>
+        {isEditing && isOwner ? (
+        <div className="flex justify-center items-center gap-2 mb-4">
+          <Input
+            value={editedName}
+            onChange={(e) => setEditedName(e.target.value)}
+            className="max-w-xs text-center"
+          />
+          <Button onClick={() => {
+            onStoreNameChange(editedName);
+            setIsEditing(false);
+            toast({
+              title: "Store Name Updated",
+              description: "Your store name has been updated successfully.",
+            });
+          }}>Save</Button>
+        </div>
+      ) : (
+        <div className="relative mb-4 text-center">
+          <h1 className={getStoreNameClasses(template)}>{storeName}</h1>
+          {isOwner && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute -right-8 top-1/2 -translate-y-1/2"
+              onClick={() => setIsEditing(true)}
+            >
+              Edit
+            </Button>
+          )}
+        </div>
+      )}
         
         {isOwner && (
           <div className="flex flex-wrap justify-center gap-2 mt-6">

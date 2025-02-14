@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { fetchProductsFromSheet } from "@/utils/googleSheets";
 
 interface StoreSetupWizardProps {
-  onComplete: (sheetUrl: string, template: string, whatsappNumber: string) => void;
+  onComplete: (sheetUrl: string, template: string, whatsappNumber: string, storeName: string, products: any[]) => void;
 }
 
 export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
@@ -15,6 +15,9 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
   const [template, setTemplate] = useState("minimal");
   const [whatsappNumber, setWhatsappNumber] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [storeName, setStoreName] = useState("Your Beautiful Store");
   const { toast } = useToast();
 
   const handleSheetSubmit = async () => {
@@ -30,7 +33,8 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
     setIsLoading(true);
     try {
       // Try to fetch products from the sheet
-      await fetchProductsFromSheet(sheetUrl);
+      const fetchedProducts = await fetchProductsFromSheet(sheetUrl);
+      setProducts(fetchedProducts);
       setStep(2);
       toast({
         title: "Success!",
@@ -51,8 +55,31 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
     setStep(step + 1);
   };
 
+  const handleEditProduct = (product) => {
+    setEditingProduct(product);
+  };
+
+  const handleUpdateProduct = (updatedProduct) => {
+    setProducts(products.map(p =>
+      p.id === updatedProduct.id ? updatedProduct : p
+    ));
+    setEditingProduct(null);
+    toast({
+      title: "Product Updated",
+      description: "Product details have been updated successfully.",
+    });
+  };
+
+  const handleDeleteProduct = (productId) => {
+    setProducts(products.filter(p => p.id !== productId));
+    toast({
+      title: "Product Deleted",
+      description: "Product has been removed successfully.",
+    });
+  };
+
   const handleCreateStore = () => {
-    onComplete(sheetUrl, template, whatsappNumber);
+    onComplete(sheetUrl, template, whatsappNumber, storeName, products);
   };
 
   return (
@@ -76,7 +103,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
                 Your sheet should have these columns: Name, Price, Description, Image URL
               </p>
             </div>
-            <Button 
+            <Button
               onClick={handleSheetSubmit}
               className="w-full"
               disabled={isLoading}
@@ -86,71 +113,31 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
           </div>
         ) : step === 2 ? (
           <div className="space-y-4">
-            <h2 className="text-2xl font-serif mb-4">Choose Your Store Template</h2>
-            <div className="grid gap-4">
-              <Button
-                variant="outline"
-                onClick={() => setTemplate("minimal")}
-                className={template === "minimal" ? "border-primary" : ""}
-              >
-                Minimal - Clean and simple design
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setTemplate("elegant")}
-                className={template === "elegant" ? "border-primary" : ""}
-              >
-                Elegant - Sophisticated serif typography
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setTemplate("modern")}
-                className={template === "modern" ? "border-primary" : ""}
-              >
-                Modern - Vibrant gradients and bold text
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setTemplate("boutique")}
-                className={template === "boutique" ? "border-primary" : ""}
-              >
-                Boutique - Soft colors and feminine style
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setTemplate("vintage")}
-                className={template === "vintage" ? "border-primary" : ""}
-              >
-                Vintage - Classic and timeless appeal
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setTemplate("luxury")}
-                className={template === "luxury" ? "border-primary" : ""}
-              >
-                Luxury - Dark mode with elegant typography
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setTemplate("minimal-dark")}
-                className={template === "minimal-dark" ? "border-primary" : ""}
-              >
-                Minimal Dark - Sleek dark mode design
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setTemplate("artisan")}
-                className={template === "artisan" ? "border-primary" : ""}
-              >
-                Artisan - Handcrafted, organic feel
-              </Button>
-            </div>
-            <Button 
-                onClick={nextStep}
-                className="w-full"
-              >
-                Next
-              </Button>
+            <h2 className="text-2xl font-serif mb-4">Edit Store Name</h2>
+            <Input
+              placeholder="Enter your Store Name"
+              value={storeName}
+              onChange={(e) => setStoreName(e.target.value)}
+              className="w-full mb-4"
+            />
+            <h2 className="text-2xl font-serif mb-4">Edit/Delete Products</h2>
+            {products.map((product) => (
+              <div key={product.id} className="border p-4 mb-4">
+                <h3>{product.name}</h3>
+                <p>Price: {product.price}</p>
+                <p>Description: {product.description}</p>
+                <p>Image URL: {product.imageUrl}</p>
+                <Button onClick={() => handleEditProduct(product)}>Edit</Button>
+                <Button onClick={() => handleDeleteProduct(product.id)}>Delete</Button>
+              </div>
+            ))}
+            {editingProduct && (
+              <div>
+                {/* Add form to edit product here */}
+              </div>
+            )}
+
+            <Button onClick={nextStep} className="w-full">Next</Button>
           </div>
         ) : (
           <div className="space-y-4">
@@ -166,7 +153,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
                 Your customers' orders will be sent to this number
               </p>
             </div>
-            <Button 
+            <Button
               onClick={handleCreateStore}
               className="w-full"
             >
