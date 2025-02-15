@@ -4,56 +4,38 @@ import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    const { name, template, whatsapp, products } = req.body;
+    const { name, template, whatsapp } = req.body;
     try {
       const store = await prisma.store.create({
-        data: {
-          name,
-          template,
-          whatsapp,
-          products: {
-            create: products?.map((product: any) => ({
-              name: product.name,
-              price: product.price,
-              description: product.description,
-              image: product.image || '/placeholder.svg'
-            })) || []
-          }
-        },
-        include: {
-          products: true
-        }
+        data: { name, template, whatsapp }
       });
       return res.status(200).json(store);
     } catch (error) {
-      console.error('Store creation error:', error);
-      return res.status(500).json({ error: 'Failed to create store', details: error.message });
+      return res.status(500).json({ error: 'Failed to create store' });
+    }
+  }
+
+  if (req.method === 'PUT') {
+    const { id, template } = req.body;
+    try {
+      const store = await prisma.store.update({
+        where: { id },
+        data: { template }
+      });
+      return res.status(200).json(store);
+    } catch (error) {
+      return res.status(500).json({ error: 'Failed to update store' });
     }
   }
 
   if (req.method === 'GET') {
     try {
       const store = await prisma.store.findFirst({
-        include: {
-          products: true
-        },
-        orderBy: {
-          createdAt: 'desc'
-        }
+        orderBy: { createdAt: 'desc' }
       });
-      
-      if (!store) {
-        return res.status(404).json({ 
-          name: "My Store",
-          template: "minimal",
-          products: []
-        });
-      }
-      
       return res.status(200).json(store);
     } catch (error) {
-      console.error('Store fetch error:', error);
-      return res.status(500).json({ error: 'Failed to fetch store', details: error.message });
+      return res.status(500).json({ error: 'Failed to fetch store' });
     }
   }
 }
