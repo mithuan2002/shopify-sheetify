@@ -13,6 +13,11 @@ const clearStoreData = () => {
 };
 
 const Index = () => {
+  useEffect(() => {
+    // Clear all store data on initial load
+    localStorage.clear();
+  }, []);
+  
   const [products, setProducts] = useState([]);
   const [template, setTemplate] = useState("minimal");
   const [storeName, setStoreName] = useState(localStorage.getItem('storeName') || "");
