@@ -8,21 +8,30 @@ import { Cart } from "@/components/Cart";
 const StorePage = () => {
   const { storeId } = useParams();
   const [storeData, setStoreData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchStore = async () => {
       try {
-        const response = await fetch(`/api/store/${storeId}`);
+        const response = await fetch(`/api/store?storeId=${storeId}`);
+        if (!response.ok) {
+          throw new Error('Store not found');
+        }
         const data = await response.json();
         setStoreData(data);
       } catch (error) {
+        setError('Store not found');
         console.error('Failed to fetch store:', error);
       }
     };
-    fetchStore();
+    
+    if (storeId) {
+      fetchStore();
+    }
   }, [storeId]);
 
-  if (!storeData) return <div>Loading...</div>;
+  if (error) return <div className="min-h-screen flex items-center justify-center">{error}</div>;
+  if (!storeData) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
 
   return (
     <div className="min-h-screen bg-background">
