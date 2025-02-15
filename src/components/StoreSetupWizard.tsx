@@ -76,7 +76,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
       selectedTemplate === "artisan" ? "bg-stone-100" :
       "bg-white"
     }`;
-    
+
     // Apply template-specific styles for preview
     const previewContainer = document.getElementById('preview-container');
     if (previewContainer) {
@@ -127,7 +127,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
     } catch (error) {
       console.error('Failed to save store settings:', error);
     }
-    
+
     if (!products.length) {
       toast({
         title: "Error",
@@ -138,6 +138,21 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
     }
 
     onComplete(sheetUrl, template, whatsappNumber, storeName, products);
+  };
+
+  const handleRestart = () => {
+    setStep(1);
+    setSheetUrl("");
+    setTemplate("minimal");
+    setWhatsappNumber("");
+    setProducts([]);
+    setEditingProduct(null);
+    setStoreName("Your Beautiful Store");
+    document.body.className = "bg-white"; //Reset background
+    const previewContainer = document.getElementById('preview-container');
+    if (previewContainer) {
+      previewContainer.className = 'preview minimal'; //Reset preview
+    }
   };
 
   return (
@@ -172,11 +187,12 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
         ) : step === 2 ? (
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
-              <Button variant="ghost" onClick={() => setStep(1)}>
-                ← Back
+              <Button variant="secondary" onClick={() => setStep(1)} className="flex items-center gap-2">
+                ← Back to Sheet
               </Button>
-              <h2 className="text-2xl font-serif">Choose Your Store Template</h2>
+              <Button variant="ghost" onClick={handleRestart}>Restart Setup</Button>
             </div>
+            <h2 className="text-2xl font-serif mb-4">Choose Your Store Template</h2>
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 {["minimal", "elegant", "modern", "boutique", "vintage", "luxury", "minimal-dark", "artisan", "futuristic", "geometric", "nature", "tech"].map((templateOption) => (
@@ -190,8 +206,8 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
                   </Button>
                 ))}
               </div>
-              
-              <div className={`preview-container p-6 rounded-lg ${
+
+              <div id="preview-container" className={`preview-container p-6 rounded-lg ${
                 template === "luxury" ? "bg-zinc-900 text-yellow-50" :
                 template === "minimal-dark" ? "bg-zinc-900 text-zinc-100" :
                 template === "modern" ? "bg-indigo-500 text-white" :
@@ -258,7 +274,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
                 </div>
               ))}
             </div>
-            
+
             {editingProduct && (
               <Dialog open={!!editingProduct} onOpenChange={() => setEditingProduct(null)}>
                 <DialogContent className="sm:max-w-[425px]">
@@ -313,11 +329,12 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
         ) : (
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
-              <Button variant="ghost" onClick={() => setStep(2)}>
-                ← Back
+              <Button variant="secondary" onClick={() => setStep(2)} className="flex items-center gap-2">
+                ← Back to Template
               </Button>
-              <h2 className="text-2xl font-serif">Enter Your WhatsApp Number</h2>
+              <Button variant="ghost" onClick={handleRestart}>Restart Setup</Button>
             </div>
+            <h2 className="text-2xl font-serif mb-4">Enter Your WhatsApp Number</h2>
             <div className="space-y-2">
               <Input
                 placeholder="WhatsApp Number (with country code)"
