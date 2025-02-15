@@ -1,15 +1,11 @@
-import { FC, useState, useEffect } from 'react'; // Added useEffect
+import { FC } from 'react';
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { useToast } from "./ui/use-toast";
 
 interface StoreHeaderProps {
   storeName: string;
   template?: string;
   onTemplateChange?: (template: string) => void;
-  onStoreNameChange?: (name: string) => void;
   isOwner?: boolean;
-  products?: { name: string; price: number }[]; // Added products prop
 }
 
 const TEMPLATE_STYLES = {
@@ -25,50 +21,33 @@ const TEMPLATE_STYLES = {
 
 const TEMPLATE_OPTIONS = Object.keys(TEMPLATE_STYLES);
 
-export const StoreHeader: FC<StoreHeaderProps> = ({ storeName, template = 'minimal', onTemplateChange, onStoreNameChange, isOwner, products = [] }) => { // Added default products
-  const { toast } = useToast();
-
-  const headerClass = template === "luxury" || template === "minimal-dark" 
-    ? "bg-gray-900 text-white" 
-    : "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60";
-
-  const handleTemplateChange = (templateOption: string) => {
-    if (onTemplateChange) {
-      onTemplateChange(templateOption);
-      localStorage.setItem('storeTemplate', templateOption);
-    }
-  };
-
+export const StoreHeader: FC<StoreHeaderProps> = ({ 
+  storeName, 
+  template = 'minimal', 
+  onTemplateChange, 
+  isOwner 
+}) => {
   return (
-    <header className={`w-full py-4 px-6 ${TEMPLATE_STYLES[template] || TEMPLATE_STYLES.minimal}`}>
+    <header className={`w-full px-6 ${TEMPLATE_STYLES[template] || TEMPLATE_STYLES.minimal}`}>
       <div className="container max-w-6xl mx-auto px-4">
-        <div className="relative mb-4 text-center">
-          <h1 className={`text-3xl font-bold ${template?.includes('dark') ? 'text-white' : 'text-gray-900'}`}>
+        <div className="text-center">
+          <h1 className={`text-4xl font-bold mb-4 ${
+            template?.includes('dark') ? 'text-white' : 'text-gray-900'
+          }`}>
             {storeName}
           </h1>
         </div>
-
-        {products.length > 0 && ( // Added conditional rendering for products
-          <div>
-            <h2>Products:</h2>
-            <ul>
-              {products.map((product, index) => (
-                <li key={index}>{product.name} - ${product.price}</li>
-              ))}
-            </ul>
-          </div>
-        )}
 
         {isOwner && (
           <div className="flex flex-wrap justify-center gap-2 mt-6">
             {TEMPLATE_OPTIONS.map((templateOption) => (
               <Button
                 key={templateOption}
-                variant="outline"
-                onClick={() => handleTemplateChange(templateOption)}
-                className={template === templateOption ? "border-primary" : ""}
+                variant={template === templateOption ? "default" : "outline"}
+                onClick={() => onTemplateChange?.(templateOption)}
+                className="capitalize"
               >
-                {templateOption.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                {templateOption.replace('-', ' ')}
               </Button>
             ))}
           </div>
