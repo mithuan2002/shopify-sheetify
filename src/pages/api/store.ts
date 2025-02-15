@@ -4,24 +4,13 @@ import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    const { name, template, whatsapp, products } = req.body;
+    const { name, template, whatsapp } = req.body;
     try {
       const store = await prisma.store.create({
         data: {
           name,
-          template,
-          whatsapp,
-          products: {
-            create: products.map((product: any) => ({
-              name: product.name,
-              price: product.price,
-              description: product.description,
-              image: product.imageUrl
-            }))
-          }
-        },
-        include: {
-          products: true
+          template: template || 'minimal',
+          whatsapp
         }
       });
       return res.status(200).json(store);

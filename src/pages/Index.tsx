@@ -29,7 +29,7 @@ const Index = () => {
     fetchStoreData();
   }, []);
 
-  const handleSetupComplete = (sheetUrl: string, selectedTemplate: string, whatsappNumber: string, storeName: string, initialProducts: any[]) => {
+  const handleSetupComplete = async (sheetUrl: string, selectedTemplate: string, whatsappNumber: string, storeName: string, initialProducts: any[]) => {
     if (!whatsappNumber || !storeName) {
       toast({
         title: "Error",
@@ -39,19 +39,38 @@ const Index = () => {
       return;
     }
 
-    // Save all store data
-    setProducts(initialProducts);
-    setTemplate(selectedTemplate);
-    localStorage.setItem('shopkeeperWhatsapp', whatsappNumber.replace(/[^0-9+]/g, ''));
-    localStorage.setItem('storeName', storeName);
-    localStorage.setItem('storeTemplate', selectedTemplate);
-    localStorage.setItem('storeProducts', JSON.stringify(initialProducts));
-    setIsSetupComplete(true);
+    try {
+      const response = await fetch('/api/store', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: storeName,
+          template: selectedTemplate,
+          whatsapp: whatsappNumber.replace(/[^0-9+]/g, '')
+        })
+      });
 
-    toast({
-      title: "Success",
-      description: "Your store has been created successfully!",
-    });
+      if (!response.ok) {
+        throw new Error('Failed to create store');
+      }
+
+      const data = await response.json();
+      setStoreName(data.name);
+      setIsSetupComplete(true);
+      
+      toast({
+        title: "Success",
+        description: "Your store has been created successfully!",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create store. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (!isSetupComplete) {
