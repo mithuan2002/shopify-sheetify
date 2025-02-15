@@ -161,17 +161,41 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
         ) : step === 2 ? (
           <div className="space-y-4">
             <h2 className="text-2xl font-serif mb-4">Choose Your Store Template</h2>
-            <div className="grid grid-cols-2 gap-4">
-              {["minimal", "elegant", "modern", "boutique", "vintage", "luxury", "minimal-dark", "artisan"].map((templateOption) => (
-                <Button
-                  key={templateOption}
-                  variant={template === templateOption ? "default" : "outline"}
-                  className="w-full capitalize"
-                  onClick={() => handleTemplateSelect(templateOption)}
-                >
-                  {templateOption}
-                </Button>
-              ))}
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                {["minimal", "elegant", "modern", "boutique", "vintage", "luxury", "minimal-dark", "artisan"].map((templateOption) => (
+                  <Button
+                    key={templateOption}
+                    variant={template === templateOption ? "default" : "outline"}
+                    className="w-full capitalize"
+                    onClick={() => handleTemplateSelect(templateOption)}
+                  >
+                    {templateOption}
+                  </Button>
+                ))}
+              </div>
+              
+              <div className={`preview-container p-6 rounded-lg ${
+                template === "luxury" || template === "minimal-dark" ? "bg-gray-900 text-white" : 
+                template === "boutique" ? "bg-rose-50" :
+                template === "vintage" ? "bg-amber-50" :
+                template === "artisan" ? "bg-stone-100" :
+                "bg-white"
+              }`}>
+                <h3 className="text-lg font-semibold mb-4">Template Preview</h3>
+                <div className="border rounded-lg p-4">
+                  <div className="w-full h-40 bg-gray-200 rounded-lg mb-4"></div>
+                  <h4 className={`text-xl font-bold ${template?.includes('dark') ? 'text-white' : 'text-gray-900'}`}>
+                    Sample Product
+                  </h4>
+                  <p className={`mt-2 ${template?.includes('dark') ? 'text-gray-300' : 'text-gray-600'}`}>
+                    This is how your products will look with the {template} template.
+                  </p>
+                  <div className="mt-4">
+                    <Button className="w-full">Add to Cart</Button>
+                  </div>
+                </div>
+              </div>
             </div>
             <Button onClick={nextStep} className="w-full mt-4">Next</Button>
             <h2 className="text-2xl font-serif mb-4">Edit Store Name</h2>
