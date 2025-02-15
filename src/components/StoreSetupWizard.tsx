@@ -141,7 +141,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
   };
 
   const handleBack = () => {
-    setStep(step - 1);
+    setStep(step === 3 ? 2 : step - 1); // Go to template selection if coming from step 3
   };
 
   const handleRestart = () => {

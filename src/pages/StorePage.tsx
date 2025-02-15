@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
 import { ProductCard } from "@/components/ProductCard";
 import { StoreHeader } from "@/components/StoreHeader";
 import { Cart } from "@/components/Cart";
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 
 const StorePage = () => {
   const { storeId } = useParams<{ storeId: string }>();
+  const navigate = useNavigate(); // Initialize useNavigate
   const [storeData, setStoreData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [isDeploying, setIsDeploying] = useState(false);
@@ -51,7 +52,21 @@ const StorePage = () => {
     if (storeId) {
       fetchStore();
     }
-  }, [storeId]);
+    //Added this to handle back navigation.  Assumes '/templates' is the template selection route
+    const handleBackButton = () => {
+      if (localStorage.getItem('returnToTemplate') === 'true') {
+          navigate('/templates');
+          localStorage.removeItem('returnToTemplate');
+      }
+    };
+
+    window.addEventListener('popstate', handleBackButton);
+
+    return () => {
+      window.removeEventListener('popstate', handleBackButton);
+    };
+  }, [storeId, navigate]);
+
 
   if (error) return <div className="min-h-screen flex items-center justify-center">{error}</div>;
   if (!storeData) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
