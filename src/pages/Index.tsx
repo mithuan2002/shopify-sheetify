@@ -38,24 +38,26 @@ const Index = () => {
     });
   };
 
-  const handleSetupComplete = async (sheetUrl: string, selectedTemplate: string, whatsappNumber: string, storeName: string, products: any[]) => {
-    try {
-      setProducts(products);
-      setTemplate(selectedTemplate);
-      localStorage.setItem('shopkeeperWhatsapp', whatsappNumber.replace(/[^0-9+]/g, ''));
-      localStorage.setItem('storeName', storeName);
-      setIsSetupComplete(true);
-      toast({
-        title: "Store Created!",
-        description: "Your store has been created successfully with your products.",
-      });
-    } catch (error) {
+  const handleSetupComplete = (sheetUrl: string, selectedTemplate: string, whatsappNumber: string, storeName: string, initialProducts: any[]) => {
+    if (!whatsappNumber || !storeName) {
       toast({
         title: "Error",
-        description: "Failed to create your store. Please try again.",
+        description: "Please fill in all required fields",
         variant: "destructive",
       });
+      return;
     }
+
+    setProducts(initialProducts);
+    localStorage.setItem('shopkeeperWhatsapp', whatsappNumber.replace(/[^0-9+]/g, ''));
+    localStorage.setItem('storeName', storeName);
+    localStorage.setItem('storeTemplate', selectedTemplate);
+    setIsSetupComplete(true);
+    
+    toast({
+      title: "Success",
+      description: "Your store has been created successfully!",
+    });
   };
 
   if (!isSetupComplete) {

@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { FC } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 
 interface StoreHeaderProps {
   storeName: string;
-  template: string;
+  template?: string;
   onTemplateChange: (template: string) => void;
   onStoreNameChange?: (name: string) => void;
   isOwner?: boolean;
@@ -24,15 +24,22 @@ const TEMPLATE_STYLES = {
 
 const TEMPLATE_OPTIONS = Object.keys(TEMPLATE_STYLES);
 
-export const StoreHeader = ({ storeName }: StoreHeaderProps) => {
-  return (
-    <header className="w-full py-4 px-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <h1 className="text-2xl font-bold text-center">{storeName}</h1>
-    </header>
-  );
+export const StoreHeader: FC<StoreHeaderProps> = ({ storeName, template = 'minimal', onTemplateChange, onStoreNameChange, isOwner }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedName, setEditedName] = useState(storeName);
+  const toast = useToast();
+
+  const headerClass = template === "luxury" || template === "minimal-dark" 
+    ? "bg-gray-900 text-white" 
+    : "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60";
+
+  const handleTemplateChange = (templateOption: string) => {
+    onTemplateChange(templateOption);
+  };
+
 
   return (
-    <header className={TEMPLATE_STYLES[template] || TEMPLATE_STYLES.minimal}>
+    <header className={`w-full py-4 px-6 ${TEMPLATE_STYLES[template] || TEMPLATE_STYLES.minimal}`}>
       <div className="container max-w-6xl mx-auto px-4">
         {isEditing && isOwner ? (
           <div className="flex justify-center items-center gap-2 mb-4">
