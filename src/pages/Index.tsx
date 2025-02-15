@@ -3,43 +3,26 @@ import { ProductCard } from "@/components/ProductCard";
 import { StoreHeader } from "@/components/StoreHeader";
 import { useToast } from "@/components/ui/use-toast";
 import { StoreSetupWizard } from "@/components/StoreSetupWizard";
-import { fetchProductsFromSheet } from "@/utils/googleSheets"; // Added import from original code
 import { Cart } from "@/components/Cart";
 
 const Index = () => {
-  const [products, setProducts] = useState([
-    {
-      id: '1',
-      name: 'Sample Product 1',
-      price: 19.99,
-      description: 'This is a sample product description',
-      imageUrl: 'https://placehold.co/400x300'
-    },
-    {
-      id: '2',
-      name: 'Sample Product 2',
-      price: 29.99,
-      description: 'Another sample product description',
-      imageUrl: 'https://placehold.co/400x300'
-    },
-    {
-      id: '3',
-      name: 'Sample Product 3',
-      price: 39.99,
-      description: 'Yet another sample product',
-      imageUrl: 'https://placehold.co/400x300'
-    }
-  ]);
+  const [products, setProducts] = useState([]);
   const [template, setTemplate] = useState("minimal");
   const [isSetupComplete, setIsSetupComplete] = useState(false);
   const { toast } = useToast();
 
+  // Check if store is already set up
   useEffect(() => {
     const storedTemplate = localStorage.getItem('storeTemplate');
     const storedName = localStorage.getItem('storeName');
+    const storedProducts = localStorage.getItem('storeProducts');
+
     if (storedTemplate && storedName) {
       setTemplate(storedTemplate);
       setIsSetupComplete(true);
+      if (storedProducts) {
+        setProducts(JSON.parse(storedProducts));
+      }
     }
   }, []);
 
@@ -53,11 +36,13 @@ const Index = () => {
       return;
     }
 
+    // Save all store data
     setProducts(initialProducts);
     setTemplate(selectedTemplate);
     localStorage.setItem('shopkeeperWhatsapp', whatsappNumber.replace(/[^0-9+]/g, ''));
     localStorage.setItem('storeName', storeName);
     localStorage.setItem('storeTemplate', selectedTemplate);
+    localStorage.setItem('storeProducts', JSON.stringify(initialProducts));
     setIsSetupComplete(true);
 
     toast({
@@ -66,17 +51,18 @@ const Index = () => {
     });
   };
 
+  // If setup is not complete, show setup wizard
   if (!isSetupComplete) {
     return (
       <div className="min-h-screen bg-background py-16 relative">
-        <div className="fixed top-4 right-4 z-50">
-          <Cart />
-        </div>
+        <h1 className="text-2xl font-bold text-center mb-8">Welcome to Store Builder</h1>
+        <p className="text-center mb-8 text-muted-foreground">Let's set up your store in 3 easy steps:</p>
         <StoreSetupWizard onComplete={handleSetupComplete} />
       </div>
     );
   }
 
+  // If setup is complete, show store
   return (
     <div className={`min-h-screen bg-background`}>
       <div className="fixed top-4 right-4 z-50">
