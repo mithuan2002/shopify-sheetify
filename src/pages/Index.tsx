@@ -8,7 +8,7 @@ import { Cart } from "@/components/Cart";
 const Index = () => {
   const [products, setProducts] = useState([]);
   const [template, setTemplate] = useState("minimal");
-  const [storeName, setStoreName] = useState("");
+  const [storeName, setStoreName] = useState(localStorage.getItem('storeName') || "");
   const [isSetupComplete, setIsSetupComplete] = useState(false);
   const { toast } = useToast();
 
@@ -20,7 +20,7 @@ const Index = () => {
         if (storeData) {
           setTemplate(storeData.template);
           setProducts(storeData.products || []);
-          setStoreName(storeData.name || "My Store");
+          setStoreName(localStorage.getItem('storeName') || storeData.name || "My Store");
           setIsSetupComplete(true);
         }
       } catch (error) {
