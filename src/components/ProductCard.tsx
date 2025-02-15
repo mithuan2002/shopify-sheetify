@@ -2,6 +2,7 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
+import { useToast } from "@/components/ui/use-toast";
 
 type ProductCardProps = {
   id: string;
@@ -13,6 +14,16 @@ type ProductCardProps = {
 
 export const ProductCard = ({ id, name, price, description, imageUrl }: ProductCardProps) => {
   const { addToCart } = useCart();
+  const { toast } = useToast();
+
+  const handleAddToCart = () => {
+    addToCart({ id, name, price });
+    toast({
+      title: "Added to cart",
+      description: `${name} has been added to your cart`,
+      duration: 2000,
+    });
+  };
 
   return (
     <Card className="w-full h-full flex flex-col hover:shadow-lg transition-shadow">
@@ -39,7 +50,7 @@ export const ProductCard = ({ id, name, price, description, imageUrl }: ProductC
       <CardFooter className="pt-4">
         <Button 
           className="w-full bg-primary hover:bg-primary/90" 
-          onClick={() => addToCart({ id, name, price })}
+          onClick={handleAddToCart}
         >
           Add to Cart
         </Button>
