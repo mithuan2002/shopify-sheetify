@@ -2,14 +2,39 @@
 import { Button } from "./ui/button";
 import { useCart } from "@/context/CartContext";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { CheckoutForm } from "./CheckoutForm";
 import { useState } from "react";
 import { ShoppingCart } from "lucide-react";
+import { Input } from "./ui/input";
 
 export const Cart = () => {
-  const { items, total, removeFromCart, addToCart } = useCart();
+  const { items, total, removeFromCart } = useCart();
   const [isOpen, setIsOpen] = useState(false);
-  const [showCheckout, setShowCheckout] = useState(false);
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+
+  const handlePlaceOrder = () => {
+    if (!customerName || !customerPhone) {
+      alert("Please fill in your name and phone number");
+      return;
+    }
+
+    const shopkeeperNumber = localStorage.getItem('shopkeeperWhatsapp') || '';
+    if (!shopkeeperNumber) {
+      alert("Store owner's WhatsApp number not found");
+      return;
+    }
+
+    const orderDetails = items.map(item => 
+      `${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`
+    ).join('\n');
+
+    const message = `New Order!\n\nCustomer: ${customerName}\nPhone: ${customerPhone}\n\nOrder Details:\n${orderDetails}\n\nTotal: $${total.toFixed(2)}`;
+    
+    const whatsappUrl = `https://wa.me/${shopkeeperNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+    
+    setIsOpen(false);
+  };
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -25,56 +50,59 @@ export const Cart = () => {
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>{showCheckout ? "Checkout" : "Your Cart"}</SheetTitle>
+          <SheetTitle>Your Cart</SheetTitle>
         </SheetHeader>
-        {!showCheckout ? (
-          <div className="mt-8">
-            <div className="space-y-4">
-              {items.map((item) => (
-                <div key={item.id} className="flex justify-between items-center">
-                  <div>
-                    <p className="font-medium">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      ${item.price.toFixed(2)} x {item.quantity}
-                    </p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeFromCart(item.id)}
-                  >
-                    Remove
-                  </Button>
-                </div>
-              ))}
-            </div>
-            {items.length > 0 ? (
-              <div className="mt-8">
-                <div className="flex justify-between font-medium mb-4">
-                  <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+        <div className="mt-8">
+          <div className="space-y-4">
+            {items.map((item) => (
+              <div key={item.id} className="flex justify-between items-center">
+                <div>
+                  <p className="font-medium">{item.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    ${item.price.toFixed(2)} x {item.quantity}
+                  </p>
                 </div>
                 <Button
-                  className="w-full"
-                  onClick={() => setShowCheckout(true)}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeFromCart(item.id)}
                 >
-                  Proceed to Checkout
+                  Remove
                 </Button>
               </div>
-            ) : (
-              <p className="text-center text-muted-foreground mt-8">
-                Your cart is empty
-              </p>
-            )}
+            ))}
           </div>
-        ) : (
-          <div className="mt-8">
-            <CheckoutForm onClose={() => {
-              setShowCheckout(false);
-              setIsOpen(false);
-            }} />
-          </div>
-        )}
+          {items.length > 0 ? (
+            <div className="mt-8">
+              <div className="flex justify-between font-medium mb-4">
+                <span>Total</span>
+                <span>${total.toFixed(2)}</span>
+              </div>
+              <div className="space-y-4">
+                <Input
+                  placeholder="Your Name"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                />
+                <Input
+                  placeholder="Your Phone Number"
+                  value={customerPhone}
+                  onChange={(e) => setCustomerPhone(e.target.value)}
+                />
+                <Button
+                  className="w-full"
+                  onClick={handlePlaceOrder}
+                >
+                  Place Order
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-center text-muted-foreground mt-8">
+              Your cart is empty
+            </p>
+          )}
+        </div>
       </SheetContent>
     </Sheet>
   );
