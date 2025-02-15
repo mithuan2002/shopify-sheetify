@@ -7,7 +7,6 @@ import { Cart } from "@/components/Cart";
 
 const Index = () => {
   const [products, setProducts] = useState([]);
-  const [template, setTemplate] = useState("minimal");
   const [storeName, setStoreName] = useState("");
   const [isSetupComplete, setIsSetupComplete] = useState(false);
   const { toast } = useToast();
