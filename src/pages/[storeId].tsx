@@ -56,8 +56,15 @@ const StorePage = () => {
   return (
     <div className="min-h-screen bg-background">
       {(!storeData.status || storeData.status === 'preview') && (
-        <div className="bg-yellow-500 text-black px-4 py-2 text-center">
-          Preview Mode - This is how your store will look
+        <div className="bg-yellow-500 text-black px-4 py-2 flex items-center justify-between">
+          <span>Preview Mode - This is how your store will look</span>
+          <Button 
+            onClick={handleDeploy}
+            disabled={isDeploying}
+            className="bg-black text-white hover:bg-gray-800"
+          >
+            {isDeploying ? "Making Public..." : "Make Site Public"}
+          </Button>
         </div>
       )}
       <StoreHeader 

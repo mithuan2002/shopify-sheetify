@@ -20,8 +20,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
       .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
     const deployedUrl = `${sanitizedStoreName}.mystore.shop`;
-    localStorage.setItem(`store_${storeId}_status`, 'deployed');
+    localStorage.setItem(`store_${storeId}_status`, 'public');
     localStorage.setItem(`store_${storeId}_url`, deployedUrl);
+    localStorage.setItem(`store_${storeId}_visibility`, 'public');
 
     return res.status(200).json({ 
       url: `https://${deployedUrl}`,

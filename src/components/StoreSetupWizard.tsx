@@ -323,7 +323,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
               onClick={handleCreateStore}
               className="w-full"
             >
-              Create Store
+              Preview Store
             </Button>
           </div>
         )}
