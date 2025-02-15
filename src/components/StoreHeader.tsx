@@ -25,21 +25,112 @@ const TEMPLATE_STYLES = {
 const decorativeElements = {
   modern: (
     <>
-      <div className="absolute top-0 left-0 w-full h-full bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%)] bg-[length:500px_500px] animate-modern-gradient"></div>
-      <div className="absolute -top-12 -left-12 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
-      <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-purple-400/20 rounded-full blur-xl"></div>
+      <div className="absolute inset-0 overflow-hidden">
+        <svg className="absolute w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="modern-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M0 20h40M20 0v40" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="0.5"/>
+              <circle cx="20" cy="20" r="1" fill="rgba(255,255,255,0.2)"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#modern-grid)" className="animate-pulse"/>
+        </svg>
+      </div>
+      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 animate-gradient-xy"></div>
     </>
   ),
   luxury: (
     <>
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDIxNyw4NywwLjEpIi8+PC9zdmc+')] opacity-20"></div>
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-yellow-500 to-transparent"></div>
+      <div className="absolute inset-0">
+        <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="luxury-pattern" width="60" height="60" patternUnits="userSpaceOnUse">
+              <path d="M30 5l25 45H5z" fill="none" stroke="rgba(234,179,8,0.2)" strokeWidth="0.5"/>
+              <circle cx="30" cy="30" r="2" fill="rgba(234,179,8,0.3)"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#luxury-pattern)"/>
+        </svg>
+      </div>
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-500 to-transparent"></div>
+      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-500 to-transparent"></div>
+    </>
+  ),
+  boutique: (
+    <>
+      <div className="absolute inset-0">
+        <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="floral-pattern" width="50" height="50" patternUnits="userSpaceOnUse">
+              <path d="M25 10a15 15 0 0 1 0 30a15 15 0 0 1 0-30" fill="none" stroke="rgba(244,63,94,0.1)" strokeWidth="0.5"/>
+              <circle cx="25" cy="25" r="3" fill="rgba(244,63,94,0.1)"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#floral-pattern)"/>
+        </svg>
+      </div>
+    </>
+  ),
+  vintage: (
+    <>
+      <div className="absolute inset-0">
+        <svg className="w-full h-full opacity-30" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="vintage-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M0 20h40M20 0v40" stroke="rgba(146,64,14,0.2)" strokeWidth="0.5" strokeDasharray="2,2"/>
+              <circle cx="20" cy="20" r="1" fill="rgba(146,64,14,0.3)"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#vintage-pattern)"/>
+        </svg>
+      </div>
     </>
   ),
   tech: (
     <>
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+PHBhdGggZD0iTTAgMGg2MHY2MEgweiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0zMCAzMEw2MCA2MEgweiIgZmlsbD0icmdiYSgxMDMsMjMyLDI0OSwwLjEpIi8+PC9zdmc+')] animate-pulse"></div>
-      <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
+      <div className="absolute inset-0">
+        <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="circuit-pattern" width="50" height="50" patternUnits="userSpaceOnUse">
+              <path d="M10 25h30M25 10v30" stroke="rgba(103,232,249,0.15)" strokeWidth="0.5"/>
+              <circle cx="25" cy="25" r="2" fill="rgba(103,232,249,0.2)"/>
+              <circle cx="10" cy="25" r="1" fill="rgba(103,232,249,0.2)"/>
+              <circle cx="40" cy="25" r="1" fill="rgba(103,232,249,0.2)"/>
+              <circle cx="25" cy="10" r="1" fill="rgba(103,232,249,0.2)"/>
+              <circle cx="25" cy="40" r="1" fill="rgba(103,232,249,0.2)"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#circuit-pattern)" className="animate-pulse"/>
+        </svg>
+      </div>
+    </>
+  ),
+  nature: (
+    <>
+      <div className="absolute inset-0">
+        <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="leaf-pattern" width="50" height="50" patternUnits="userSpaceOnUse">
+              <path d="M25 10c15 15 0 30-15 15s15-15 15 15" fill="none" stroke="rgba(6,78,59,0.1)" strokeWidth="0.5"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#leaf-pattern)"/>
+        </svg>
+      </div>
+    </>
+  ),
+  geometric: (
+    <>
+      <div className="absolute inset-0">
+        <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="geo-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M20 0l20 20l-20 20l-20-20z" fill="none" stroke="rgba(100,116,139,0.1)" strokeWidth="0.5"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#geo-pattern)"/>
+        </svg>
+      </div>
     </>
   )
 };

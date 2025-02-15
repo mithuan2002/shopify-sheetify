@@ -1,39 +1,48 @@
 
-import { Request, Response } from 'express';
+import { prisma } from '@/lib/db';
+import { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(req: Request, res: Response) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method === 'POST') {
+    const { name, template, whatsapp, products } = req.body;
+    try {
+      const store = await prisma.store.create({
+        data: {
+          name,
+          template,
+          whatsapp,
+          products: {
+            create: products.map((product: any) => ({
+              name: product.name,
+              price: product.price,
+              description: product.description,
+              image: product.imageUrl
+            }))
+          }
+        },
+        include: {
+          products: true
+        }
+      });
+      return res.status(200).json(store);
+    } catch (error) {
+      console.error('Store creation error:', error);
+      return res.status(500).json({ error: 'Failed to create store' });
+    }
+  }
+
   if (req.method === 'GET') {
     try {
-      // Return store data from localStorage for now
-      // In a real app, this would come from a database
-      const storeData = {
-        name: localStorage.getItem('storeName') || '',
-        template: localStorage.getItem('storeTemplate') || 'minimal',
-        products: JSON.parse(localStorage.getItem('storeProducts') || '[]'),
-      };
-      res.status(200).json(storeData);
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch store data' });
-    }
-  } else if (req.method === 'POST') {
-    try {
-      const { name, template, whatsapp } = req.body;
-      // Store data in localStorage for now
-      // In a real app, this would be saved to a database
-      localStorage.setItem('storeName', name);
-      localStorage.setItem('storeTemplate', template);
-      localStorage.setItem('shopkeeperWhatsapp', whatsapp);
-      
-      res.status(200).json({ 
-        id: Date.now().toString(),
-        name,
-        template,
-        whatsapp
+      const store = await prisma.store.findFirst({
+        orderBy: { createdAt: 'desc' },
+        include: {
+          products: true
+        }
       });
+      return res.status(200).json(store);
     } catch (error) {
-      res.status(500).json({ error: 'Failed to save store data' });
+      console.error('Store fetch error:', error);
+      return res.status(500).json({ error: 'Failed to fetch store' });
     }
-  } else {
-    res.status(405).json({ error: 'Method not allowed' });
   }
 }
