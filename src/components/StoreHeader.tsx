@@ -140,20 +140,20 @@ export const StoreHeader: FC<StoreHeaderProps> = ({
   template = 'minimal'
 }) => {
   const getHeaderStyles = (template: string) => {
-    const baseStyles = "text-4xl font-bold tracking-tight";
-    const shadowStyles = "drop-shadow-md";
+    const baseStyles = "text-4xl font-bold tracking-tight relative z-20";
+    const textShadow = "[text-shadow:2px_2px_4px_rgba(0,0,0,0.3),0_0_10px_rgba(255,255,255,0.5)]";
     
     const styles = {
-      minimal: `${baseStyles} text-gray-900 hover:scale-102 transition-transform`,
-      modern: `${baseStyles} ${shadowStyles} font-sans text-white tracking-wider [text-shadow:0_0_30px_rgba(255,255,255,0.5)]`,
-      elegant: `${baseStyles} font-serif text-gray-800 hover:tracking-wider transition-all duration-300`,
-      boutique: `${baseStyles} font-serif text-rose-900 italic hover:scale-105 transition-transform`,
-      vintage: `${baseStyles} font-serif text-amber-900 tracking-widest [text-shadow:2px_2px_0_rgba(217,119,6,0.2)]`,
-      luxury: `${baseStyles} ${shadowStyles} font-serif text-yellow-50 [text-shadow:0_0_20px_rgba(234,179,8,0.5)]`,
-      "minimal-dark": `${baseStyles} ${shadowStyles} text-zinc-100 hover:tracking-wider transition-all`,
-      nature: `${baseStyles} font-sans text-emerald-900 [text-shadow:0_2px_4px_rgba(6,78,59,0.2)]`,
-      tech: `${baseStyles} ${shadowStyles} font-mono text-cyan-100 hover:text-cyan-300 transition-colors`,
-      artisan: `${baseStyles} font-serif text-stone-900 hover:tracking-wide transition-all`
+      minimal: `${baseStyles} text-gray-900 ${textShadow} hover:scale-102 transition-transform`,
+      modern: `${baseStyles} text-white ${textShadow} font-sans tracking-wider`,
+      elegant: `${baseStyles} text-gray-900 ${textShadow} font-serif hover:tracking-wider transition-all duration-300`,
+      boutique: `${baseStyles} text-rose-900 ${textShadow} font-serif italic hover:scale-105 transition-transform`,
+      vintage: `${baseStyles} text-amber-900 ${textShadow} font-serif tracking-widest`,
+      luxury: `${baseStyles} text-yellow-50 ${textShadow} font-serif`,
+      "minimal-dark": `${baseStyles} text-white ${textShadow} hover:tracking-wider transition-all`,
+      nature: `${baseStyles} text-emerald-900 ${textShadow} font-sans`,
+      tech: `${baseStyles} text-white ${textShadow} font-mono hover:text-cyan-300 transition-colors`,
+      artisan: `${baseStyles} text-stone-900 ${textShadow} font-serif hover:tracking-wide transition-all`
     };
 
     return styles[template as keyof typeof styles] || styles.minimal;
