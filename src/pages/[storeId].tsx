@@ -33,12 +33,16 @@ const StorePage = () => {
   useEffect(() => {
     const fetchStore = async () => {
       try {
-        const response = await fetch(`/api/store?storeId=${storeId}`);
-        if (!response.ok) {
+        const name = localStorage.getItem(`store_${storeId}_name`);
+        const template = localStorage.getItem(`store_${storeId}_template`);
+        const products = JSON.parse(localStorage.getItem(`store_${storeId}_products`) || '[]');
+        const status = localStorage.getItem(`store_${storeId}_status`);
+        
+        if (!name) {
           throw new Error('Store not found');
         }
-        const data = await response.json();
-        setStoreData(data);
+        
+        setStoreData({ name, template, products, status });
       } catch (error) {
         setError('Store not found');
         console.error('Failed to fetch store:', error);
