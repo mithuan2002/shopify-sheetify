@@ -56,15 +56,7 @@ const Index = () => {
     localStorage.setItem(`store_${storeId}_status`, 'preview');
     
     const previewUrl = `${window.location.origin}/${storeId}`;
-    toast({
-      title: "Success",
-      description: (
-        <div>
-          <p>Your store has been created successfully!</p>
-          <p className="mt-2">Store URL: <a href={storeUrl} className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">{storeUrl}</a></p>
-        </div>
-      ),
-    });
+    window.location.href = previewUrl;
   };
 
   if (!isSetupComplete) {
