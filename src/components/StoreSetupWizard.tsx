@@ -127,6 +127,35 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
                 </Button>
               ))}
             </div>
+            <div className="mt-4 border rounded-lg p-4 bg-white shadow-sm">
+              <h3 className="text-lg font-medium mb-2">Template Preview</h3>
+              <div className={`aspect-video rounded-lg overflow-hidden ${
+                template === "minimal" ? "bg-[radial-gradient(circle_at_1_1,#ffffff,transparent)_0_0/15px_15px] bg-white" :
+                template === "modern" ? "bg-[conic-gradient(from_90deg_at_50%_-10%,#3b82f6,#4f46e5,#7c3aed)]" :
+                template === "elegant" ? "bg-slate-50 border border-gray-200" :
+                template === "boutique" ? "bg-gradient-to-br from-pink-100 via-rose-200 to-pink-300" :
+                template === "vintage" ? "bg-amber-50 border-4 border-double border-amber-800" :
+                template === "luxury" ? "bg-gray-900" :
+                template === "minimal-dark" ? "bg-gray-900" :
+                template === "artisan" ? "bg-stone-100" : ""
+              }`}>
+                <div className="h-full flex flex-col items-center justify-center p-4">
+                  <div className={`text-xl font-semibold mb-2 ${
+                    template === "modern" || template === "luxury" || template === "minimal-dark" ? "text-white" :
+                    template === "boutique" ? "text-rose-900" :
+                    template === "vintage" ? "text-amber-900" :
+                    "text-gray-900"
+                  }`}>
+                    Sample Store Layout
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="w-16 h-16 bg-black/10 rounded"></div>
+                    <div className="w-16 h-16 bg-black/10 rounded"></div>
+                    <div className="w-16 h-16 bg-black/10 rounded"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
