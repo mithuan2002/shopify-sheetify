@@ -108,6 +108,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
   };
 
   const handleCreateStore = async () => {
+    localStorage.setItem('currentStep', '2');  // Save current step
     if (!whatsappNumber || !storeName || !template) {
       toast({
         title: "Error",
@@ -141,7 +142,11 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
   };
 
   const handleBack = () => {
-    setStep(step === 3 ? 2 : step - 1); // Go to template selection if coming from step 3
+    if (step === 3) {
+      setStep(2);
+    } else if (step === 2) {
+      setStep(1);
+    }
   };
 
   const handleRestart = () => {
