@@ -23,16 +23,35 @@ const TEMPLATE_OPTIONS = Object.keys(TEMPLATE_STYLES);
 
 export const StoreHeader: FC<StoreHeaderProps> = ({ 
   storeName, 
-  template = 'minimal'
+  template = 'minimal', 
+  onTemplateChange, 
+  isOwner 
 }) => {
   return (
-    <header className="w-full px-6 py-8 mb-8 bg-white">
+    <header className={`w-full px-6 ${TEMPLATE_STYLES[template] || TEMPLATE_STYLES.minimal}`}>
       <div className="container max-w-6xl mx-auto px-4">
         <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4 text-gray-900">
+          <h1 className={`text-4xl font-bold mb-4 ${
+            template?.includes('dark') ? 'text-white' : 'text-gray-900'
+          }`}>
             {storeName}
           </h1>
         </div>
+
+        {isOwner && (
+          <div className="flex flex-wrap justify-center gap-2 mt-6">
+            {TEMPLATE_OPTIONS.map((templateOption) => (
+              <Button
+                key={templateOption}
+                variant={template === templateOption ? "default" : "outline"}
+                onClick={() => onTemplateChange?.(templateOption)}
+                className="capitalize"
+              >
+                {templateOption.replace('-', ' ')}
+              </Button>
+            ))}
+          </div>
+        )}
       </div>
     </header>
   );
