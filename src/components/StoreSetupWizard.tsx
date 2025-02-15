@@ -187,11 +187,16 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
               </div>
               
               <div className={`preview-container p-6 rounded-lg ${
-                template === "luxury" || template === "minimal-dark" ? "bg-gray-900 text-white" : 
-                template === "boutique" ? "bg-rose-50" :
-                template === "vintage" ? "bg-amber-50" :
-                template === "artisan" ? "bg-stone-100" :
-                "bg-white"
+                template === "luxury" ? "bg-zinc-900 text-yellow-50" :
+                template === "minimal-dark" ? "bg-zinc-900 text-zinc-100" :
+                template === "modern" ? "bg-indigo-500 text-white" :
+                template === "boutique" ? "bg-rose-100 text-rose-900" :
+                template === "vintage" ? "bg-amber-50 text-amber-900" :
+                template === "nature" ? "bg-emerald-100 text-emerald-900" :
+                template === "tech" ? "bg-cyan-900 text-cyan-100" :
+                template === "artisan" ? "bg-stone-100 text-stone-900" :
+                template === "elegant" ? "bg-slate-50 text-gray-900" :
+                "bg-white text-gray-900"
               }`}>
                 <h3 className="text-lg font-semibold mb-4">Template Preview</h3>
                 <div className="border rounded-lg p-4">
