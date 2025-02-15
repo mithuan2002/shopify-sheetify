@@ -2,113 +2,71 @@ import { useState, useEffect } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { StoreHeader } from "@/components/StoreHeader";
 import { useToast } from "@/components/ui/use-toast";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
-
+import { StoreSetupWizard } from "@/components/StoreSetupWizard";
+import { Cart } from "@/components/Cart";
 
 const Index = () => {
   const [products, setProducts] = useState([]);
   const [storeName, setStoreName] = useState("");
   const [isSetupComplete, setIsSetupComplete] = useState(false);
-  const [template, setTemplate] = useState("minimal");
-  const { toast: useToast } = useToast();
-  const [name, setName] = useState("");
-  const [whatsapp, setWhatsapp] = useState("");
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchStoreData = async () => {
       try {
         const response = await fetch('/api/store');
-        if (!response.ok) {
-          if (response.status === 404) {
-            setIsSetupComplete(false);
-            return;
-          }
-          throw new Error('Failed to fetch store data');
-        }
         const storeData = await response.json();
         if (storeData) {
-          setTemplate(storeData.template || "minimal");
+          setTemplate(storeData.template);
           setProducts(storeData.products || []);
           setStoreName(storeData.name || "My Store");
           setIsSetupComplete(true);
         }
       } catch (error) {
         console.error('Failed to fetch store data:', error);
-        setIsSetupComplete(false);
       }
     };
     fetchStoreData();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    try {
-      const response = await fetch('/api/store', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, whatsapp }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create store');
-      }
-
-      const data = await response.json();
-      useToast({
-        title: "Success",
-        description: "Your store has been created successfully!",
-      });
-      console.log('Store created:', data);
-      setStoreName(data.name);
-      setIsSetupComplete(true);
-
-    } catch (error) {
-      useToast({
+  const handleSetupComplete = (sheetUrl: string, selectedTemplate: string, whatsappNumber: string, storeName: string, initialProducts: any[]) => {
+    if (!whatsappNumber || !storeName) {
+      toast({
         title: "Error",
-        description: "Failed to create store. Please try again.",
+        description: "Please fill in all required fields",
         variant: "destructive",
       });
-      console.error('Error:', error);
+      return;
     }
+
+    // Save all store data
+    setProducts(initialProducts);
+    setTemplate(selectedTemplate);
+    localStorage.setItem('shopkeeperWhatsapp', whatsappNumber.replace(/[^0-9+]/g, ''));
+    localStorage.setItem('storeName', storeName);
+    localStorage.setItem('storeTemplate', selectedTemplate);
+    localStorage.setItem('storeProducts', JSON.stringify(initialProducts));
+    setIsSetupComplete(true);
+
+    toast({
+      title: "Success",
+      description: "Your store has been created successfully!",
+    });
   };
 
   if (!isSetupComplete) {
     return (
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Create Store</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Input
-              type="text"
-              placeholder="Store Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <Input
-              type="text"
-              placeholder="WhatsApp Number"
-              value={whatsapp}
-              onChange={(e) => setWhatsapp(e.target.value)}
-              required
-            />
-          </div>
-          <Button type="submit">Create Store</Button>
-        </form>
+      <div className="min-h-screen bg-background py-16 relative">
+        <h1 className="text-2xl font-bold text-center mb-8">Welcome to Store Builder</h1>
+        <p className="text-center mb-8 text-muted-foreground">Let's set up your store in 3 easy steps:</p>
+        <StoreSetupWizard onComplete={handleSetupComplete} />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-background">
-      <StoreHeader
+      <StoreHeader 
         storeName={storeName}
         template={template}
         isOwner={true}
