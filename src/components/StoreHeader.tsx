@@ -24,9 +24,9 @@ export const StoreHeader: FC<StoreHeaderProps> = ({
     <header className={`w-full px-6 ${TEMPLATE_STYLES[template] || TEMPLATE_STYLES.minimal}`}>
       <div className="container max-w-6xl mx-auto px-4">
         <div className="text-center">
-          <h1 className={`text-4xl font-bold ${
+          <h1 className={`text-4xl font-bold drop-shadow-md ${
             template?.includes('dark') ? 'text-white' : 'text-gray-900'
-          }`}>
+          } text-opacity-100 [text-shadow:_1px_1px_2px_rgb(0_0_0_/_20%)]`}>
             {storeName}
           </h1>
         </div>
