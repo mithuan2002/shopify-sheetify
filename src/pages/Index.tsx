@@ -13,17 +13,20 @@ const Index = () => {
 
   // Check if store is already set up
   useEffect(() => {
-    const storedTemplate = localStorage.getItem('storeTemplate');
-    const storedName = localStorage.getItem('storeName');
-    const storedProducts = localStorage.getItem('storeProducts');
-
-    if (storedTemplate && storedName) {
-      setTemplate(storedTemplate);
-      setIsSetupComplete(true);
-      if (storedProducts) {
-        setProducts(JSON.parse(storedProducts));
+    const fetchStoreData = async () => {
+      try {
+        const response = await fetch('/api/store');
+        const storeData = await response.json();
+        if (storeData) {
+          setTemplate(storeData.template);
+          setProducts(storeData.products);
+          setIsSetupComplete(true);
+        }
+      } catch (error) {
+        console.error('Failed to fetch store data:', error);
       }
-    }
+    };
+    fetchStoreData();
   }, []);
 
   const handleSetupComplete = (sheetUrl: string, selectedTemplate: string, whatsappNumber: string, storeName: string, initialProducts: any[]) => {
