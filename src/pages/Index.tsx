@@ -13,11 +13,10 @@ const clearStoreData = () => {
 };
 
 const Index = () => {
-  // Initialize store if needed
+  // Clear state and initialize store
   useEffect(() => {
-    if (!localStorage.getItem('initStore')) {
-      localStorage.setItem('initStore', 'true');
-    }
+    localStorage.clear();
+    localStorage.setItem('initStore', 'true');
   }, []);
   
   const [products, setProducts] = useState([]);

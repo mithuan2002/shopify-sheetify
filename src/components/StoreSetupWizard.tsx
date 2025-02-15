@@ -145,18 +145,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
   };
 
   const handleRestart = () => {
-    setStep(1);
-    setSheetUrl("");
-    setTemplate("minimal");
-    setWhatsappNumber("");
-    setProducts([]);
-    setEditingProduct(null);
-    setStoreName("Your Beautiful Store");
-    document.body.className = "bg-white"; //Reset background
-    const previewContainer = document.getElementById('preview-container');
-    if (previewContainer) {
-      previewContainer.className = 'preview minimal'; //Reset preview
-    }
+    window.location.href = '/';
   };
 
   return (
