@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { StoreHeader } from "@/components/StoreHeader";
@@ -9,28 +10,37 @@ const Index = () => {
   const [products, setProducts] = useState([]);
   const [storeName, setStoreName] = useState("");
   const [isSetupComplete, setIsSetupComplete] = useState(false);
+  const [template, setTemplate] = useState("minimal");
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchStoreData = async () => {
       try {
         const response = await fetch('/api/store');
+        if (!response.ok) {
+          if (response.status === 404) {
+            setIsSetupComplete(false);
+            return;
+          }
+          throw new Error('Failed to fetch store data');
+        }
         const storeData = await response.json();
         if (storeData) {
-          setTemplate(storeData.template);
+          setTemplate(storeData.template || "minimal");
           setProducts(storeData.products || []);
           setStoreName(storeData.name || "My Store");
           setIsSetupComplete(true);
         }
       } catch (error) {
         console.error('Failed to fetch store data:', error);
+        setIsSetupComplete(false);
       }
     };
     fetchStoreData();
   }, []);
 
-  const handleSetupComplete = async (sheetUrl: string, selectedTemplate: string, whatsappNumber: string, storeName: string, initialProducts: any[]) => {
-    if (!whatsappNumber || !storeName) {
+  const handleSetupComplete = async (sheetUrl: string, selectedTemplate: string, whatsappNumber: string, name: string, initialProducts: any[]) => {
+    if (!whatsappNumber || !name) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -46,7 +56,7 @@ const Index = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: storeName,
+          name,
           template: selectedTemplate,
           whatsapp: whatsappNumber.replace(/[^0-9+]/g, '')
         })
@@ -58,6 +68,8 @@ const Index = () => {
 
       const data = await response.json();
       setStoreName(data.name);
+      setTemplate(data.template);
+      setProducts(initialProducts);
       setIsSetupComplete(true);
       
       toast({
@@ -65,6 +77,7 @@ const Index = () => {
         description: "Your store has been created successfully!",
       });
     } catch (error) {
+      console.error('Failed to create store:', error);
       toast({
         title: "Error",
         description: "Failed to create store. Please try again.",
