@@ -116,6 +116,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
       });
       return;
     }
+    localStorage.setItem('storeTemplate', template);
     
     if (!products.length) {
       toast({
