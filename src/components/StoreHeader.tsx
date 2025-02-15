@@ -32,7 +32,10 @@ export const StoreHeader: FC<StoreHeaderProps> = ({ storeName, template = 'minim
     : "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60";
 
   const handleTemplateChange = (templateOption: string) => {
-    onTemplateChange?.(templateOption);
+    if (onTemplateChange) {
+      onTemplateChange(templateOption);
+      localStorage.setItem('storeTemplate', templateOption);
+    }
   };
 
   return (

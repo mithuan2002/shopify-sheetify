@@ -64,6 +64,7 @@ const Index = () => {
     }
 
     setProducts(initialProducts);
+    setTemplate(selectedTemplate);
     localStorage.setItem('shopkeeperWhatsapp', whatsappNumber.replace(/[^0-9+]/g, ''));
     localStorage.setItem('storeName', storeName);
     localStorage.setItem('storeTemplate', selectedTemplate);
