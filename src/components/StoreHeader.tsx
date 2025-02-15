@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 interface StoreHeaderProps {
   storeName: string;
   template?: string;
-  onTemplateChange: (template: string) => void;
+  onTemplateChange?: (template: string) => void;
   onStoreNameChange?: (name: string) => void;
   isOwner?: boolean;
 }
@@ -27,53 +27,34 @@ const TEMPLATE_OPTIONS = Object.keys(TEMPLATE_STYLES);
 export const StoreHeader: FC<StoreHeaderProps> = ({ storeName, template = 'minimal', onTemplateChange, onStoreNameChange, isOwner }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(storeName);
-  const toast = useToast();
+  const { toast } = useToast();
 
   const headerClass = template === "luxury" || template === "minimal-dark" 
     ? "bg-gray-900 text-white" 
     : "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60";
 
   const handleTemplateChange = (templateOption: string) => {
-    onTemplateChange(templateOption);
+    onTemplateChange?.(templateOption);
   };
-
 
   return (
     <header className={`w-full py-4 px-6 ${TEMPLATE_STYLES[template] || TEMPLATE_STYLES.minimal}`}>
       <div className="container max-w-6xl mx-auto px-4">
-        {isEditing && isOwner ? (
-          <div className="flex justify-center items-center gap-2 mb-4">
-            <Input
-              value={editedName}
-              onChange={(e) => setEditedName(e.target.value)}
-              className="max-w-xs text-center"
-            />
-            <Button onClick={() => {
-              onStoreNameChange?.(editedName);
-              setIsEditing(false);
-              toast({
-                title: "Store Name Updated",
-                description: "Your store name has been updated successfully."
-              });
-            }}>Save</Button>
-          </div>
-        ) : (
-          <div className="relative mb-4 text-center">
-            <h1 className={`text-3xl font-bold ${template.includes('dark') ? 'text-white' : 'text-gray-900'}`}>
-              {storeName}
-            </h1>
-            {isOwner && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute -right-8 top-1/2 -translate-y-1/2"
-                onClick={() => setIsEditing(true)}
-              >
-                Edit
-              </Button>
-            )}
-          </div>
-        )}
+        <div className="relative mb-4 text-center">
+          <h1 className={`text-3xl font-bold ${template?.includes('dark') ? 'text-white' : 'text-gray-900'}`}>
+            {storeName}
+          </h1>
+          {isOwner && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute -right-8 top-1/2 -translate-y-1/2"
+              onClick={() => setIsEditing(true)}
+            >
+              Edit
+            </Button>
+          )}
+        </div>
 
         {isOwner && (
           <div className="flex flex-wrap justify-center gap-2 mt-6">
