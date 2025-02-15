@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 interface StoreHeaderProps {
   storeName: string;
   template?: string;
+  isPreview?: boolean;
 }
 
 const TEMPLATE_STYLES = {

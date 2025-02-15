@@ -55,18 +55,24 @@ const StorePage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {(!storeData.status || storeData.status === 'preview') && (
+        <div className="bg-yellow-500 text-black px-4 py-2 text-center">
+          Preview Mode - This is how your store will look
+        </div>
+      )}
       <StoreHeader 
         storeName={storeData.name}
         template={storeData.template}
+        isPreview={!storeData.status || storeData.status === 'preview'}
       />
       {storeData.status !== 'deployed' && (
         <div className="fixed bottom-4 right-4 z-50">
           <Button 
             onClick={handleDeploy}
             disabled={isDeploying}
-            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold"
+            className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold px-6 py-3 text-lg shadow-lg"
           >
-            {isDeploying ? "Deploying..." : "Deploy to shop.link"}
+            {isDeploying ? "Deploying..." : "Ready to Deploy? Click Here!"}
           </Button>
         </div>
       )}
