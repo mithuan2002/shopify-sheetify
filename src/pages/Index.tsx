@@ -7,7 +7,29 @@ import { fetchProductsFromSheet } from "@/utils/googleSheets"; // Added import f
 import { Cart } from "@/components/Cart";
 
 const Index = () => {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState([
+    {
+      id: '1',
+      name: 'Sample Product 1',
+      price: 19.99,
+      description: 'This is a sample product description',
+      imageUrl: 'https://placehold.co/400x300'
+    },
+    {
+      id: '2',
+      name: 'Sample Product 2',
+      price: 29.99,
+      description: 'Another sample product description',
+      imageUrl: 'https://placehold.co/400x300'
+    },
+    {
+      id: '3',
+      name: 'Sample Product 3',
+      price: 39.99,
+      description: 'Yet another sample product',
+      imageUrl: 'https://placehold.co/400x300'
+    }
+  ]);
   const [template, setTemplate] = useState("minimal");
   const [isSetupComplete, setIsSetupComplete] = useState(false);
   const { toast } = useToast();

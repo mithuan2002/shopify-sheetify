@@ -9,6 +9,7 @@ interface StoreHeaderProps {
   onTemplateChange?: (template: string) => void;
   onStoreNameChange?: (name: string) => void;
   isOwner?: boolean;
+  products?: { name: string; price: number }[]; // Added products prop
 }
 
 const TEMPLATE_STYLES = {
@@ -24,7 +25,7 @@ const TEMPLATE_STYLES = {
 
 const TEMPLATE_OPTIONS = Object.keys(TEMPLATE_STYLES);
 
-export const StoreHeader: FC<StoreHeaderProps> = ({ storeName, template = 'minimal', onTemplateChange, onStoreNameChange, isOwner }) => {
+export const StoreHeader: FC<StoreHeaderProps> = ({ storeName, template = 'minimal', onTemplateChange, onStoreNameChange, isOwner, products = [] }) => { // Added default products
   const { toast } = useToast();
 
   const headerClass = template === "luxury" || template === "minimal-dark" 
@@ -46,6 +47,17 @@ export const StoreHeader: FC<StoreHeaderProps> = ({ storeName, template = 'minim
             {storeName}
           </h1>
         </div>
+
+        {products.length > 0 && ( // Added conditional rendering for products
+          <div>
+            <h2>Products:</h2>
+            <ul>
+              {products.map((product, index) => (
+                <li key={index}>{product.name} - ${product.price}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {isOwner && (
           <div className="flex flex-wrap justify-center gap-2 mt-6">
