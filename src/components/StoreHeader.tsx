@@ -8,16 +8,18 @@ interface StoreHeaderProps {
 }
 
 const TEMPLATE_STYLES = {
-  minimal: "py-8 mb-8 bg-gradient-to-b from-white to-gray-50 shadow-sm text-gray-900 relative overflow-hidden",
-  modern: "py-10 mb-8 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-lg relative overflow-hidden",
-  elegant: "py-12 mb-8 bg-gradient-to-b from-slate-50 to-gray-100 border-y border-gray-200 text-gray-900 relative overflow-hidden",
-  boutique: "py-14 mb-8 bg-gradient-to-br from-pink-100 via-rose-200 to-pink-300 text-rose-900 shadow-inner relative overflow-hidden",
-  vintage: "py-12 mb-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-100 via-amber-50 to-amber-100 border-4 border-double border-amber-800 text-amber-900 relative overflow-hidden",
-  luxury: "py-16 mb-8 bg-[conic-gradient(at_top,_var(--tw-gradient-stops))] from-gray-900 via-gray-800 to-black border-b-2 border-yellow-500 text-yellow-50 relative overflow-hidden",
-  "minimal-dark": "py-10 mb-8 bg-[linear-gradient(to_right,_var(--tw-gradient-stops))] from-zinc-900 via-gray-900 to-zinc-900 border-b border-zinc-800 text-zinc-100 shadow-xl relative overflow-hidden",
-  nature: "py-12 mb-8 bg-gradient-to-r from-emerald-200 via-green-200 to-emerald-200 border-y-2 border-emerald-600 text-emerald-900 relative overflow-hidden",
-  tech: "py-10 mb-8 bg-[linear-gradient(to_right,_var(--tw-gradient-stops))] from-cyan-900 via-blue-900 to-cyan-900 text-cyan-100 shadow-cyan-900/50 shadow-lg relative overflow-hidden",
-  artisan: "py-14 mb-8 bg-gradient-to-br from-stone-200 via-stone-100 to-stone-50 border-y-4 border-stone-400 text-stone-900 relative overflow-hidden"
+  minimal: "py-8 mb-8 bg-[radial-gradient(circle_at_1_1,#ffffff,transparent)_0_0/15px_15px] bg-white shadow-sm text-gray-900 relative overflow-hidden backdrop-blur-sm",
+  modern: "py-10 mb-8 bg-[conic-gradient(from_90deg_at_50%_-10%,#3b82f6,#4f46e5,#7c3aed)] text-white shadow-lg relative overflow-hidden animate-gradient-xy",
+  elegant: "py-12 mb-8 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+PHBhdGggZD0iTTAgMGg2MHY2MEgweiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0zMCAzMEw2MCA2MEgweiIgZmlsbD0icmdiYSgyNDMsMjQ0LDI0NiwwLjEpIi8+PC9zdmc+')] bg-slate-50 border-y border-gray-200 text-gray-900 relative overflow-hidden",
+  boutique: "py-14 mb-8 bg-gradient-to-br from-pink-100 via-rose-200 to-pink-300 text-rose-900 shadow-inner relative overflow-hidden [background-size:20px_20px] [background-image:repeating-linear-gradient(0deg,#fce7f3,transparent_1px),repeating-linear-gradient(90deg,#fce7f3,transparent_1px)]",
+  vintage: "py-12 mb-8 bg-amber-50 border-4 border-double border-amber-800 text-amber-900 relative overflow-hidden [background:radial-gradient(#f59e0b_1px,transparent_1px)_0_0/20px_20px]",
+  luxury: "py-16 mb-8 bg-black text-yellow-50 relative overflow-hidden [background-image:linear-gradient(45deg,#18181b_25%,transparent_25%),linear-gradient(-45deg,#18181b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#18181b_75%),linear-gradient(-45deg,transparent_75%,#18181b_75%)] [background-size:20px_20px] [background-position:0_0,0_10px,10px_-10px,-10px_0] border-b-2 border-yellow-500",
+  "minimal-dark": "py-10 mb-8 bg-zinc-900 text-zinc-100 shadow-xl relative overflow-hidden [background-image:radial-gradient(#27272a_1px,transparent_1px)] [background-size:40px_40px] [background-position:center]",
+  nature: "py-12 mb-8 bg-gradient-to-r from-emerald-200 via-green-200 to-emerald-200 text-emerald-900 relative overflow-hidden [mask-image:url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTUiIGZpbGw9ImJsYWNrIi8+PC9zdmc+')] border-y-2 border-emerald-600",
+  tech: "py-10 mb-8 bg-cyan-900 text-cyan-100 shadow-cyan-900/50 shadow-lg relative overflow-hidden [background:linear-gradient(90deg,rgba(103,232,249,0.1)_1px,transparent_1px),linear-gradient(rgba(103,232,249,0.1)_1px,transparent_1px)] [background-size:20px_20px]",
+  artisan: "py-14 mb-8 bg-stone-100 text-stone-900 relative overflow-hidden [background-image:repeating-radial-gradient(circle_at_0_0,transparent_0,#e7e5e4_12px),repeating-linear-gradient(#78716c55,#78716c55)] border-y-4 border-stone-400",
+  futuristic: "py-12 mb-8 bg-gradient-to-r from-violet-600 to-indigo-600 text-white relative overflow-hidden [background-image:linear-gradient(45deg,rgba(255,255,255,0.1)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.1)_50%,rgba(255,255,255,0.1)_75%,transparent_75%,transparent)] [background-size:30px_30px] animate-gradient-xy",
+  geometric: "py-10 mb-8 bg-white text-gray-900 relative overflow-hidden [background-image:repeating-linear-gradient(45deg,#f1f5f9_25%,transparent_25%,transparent_75%,#f1f5f9_75%,#f1f5f9),repeating-linear-gradient(45deg,#f1f5f9_25%,#ffffff_25%,#ffffff_75%,#f1f5f9_75%,#f1f5f9)] [background-position:0_0,10px_10px] [background-size:20px_20px]"
 };
 
 const decorativeElements = {

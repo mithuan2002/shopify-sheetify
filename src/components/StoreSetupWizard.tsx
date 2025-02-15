@@ -174,7 +174,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
             <h2 className="text-2xl font-serif mb-4">Choose Your Store Template</h2>
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
-                {["minimal", "elegant", "modern", "boutique", "vintage", "luxury", "minimal-dark", "artisan"].map((templateOption) => (
+                {["minimal", "elegant", "modern", "boutique", "vintage", "luxury", "minimal-dark", "artisan", "futuristic", "geometric", "nature", "tech"].map((templateOption) => (
                   <Button
                     key={templateOption}
                     variant={template === templateOption ? "default" : "outline"}
