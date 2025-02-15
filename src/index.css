@@ -107,3 +107,21 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes modern-gradient {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 100%; }
+}
+
+.animate-modern-gradient {
+  animation: modern-gradient 8s linear infinite;
+}
+
+.hover\:scale-102:hover {
+  transform: scale(1.02);
+}
+
+/* Add smooth transitions for all templates */
+.text-center h1 {
+  transition: all 0.3s ease-in-out;
+}
