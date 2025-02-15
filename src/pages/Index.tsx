@@ -10,7 +10,10 @@ import { Cart } from "@/components/Cart";
 
 const Index = () => {
   const [products, setProducts] = useState([]);
-  const [template, setTemplate] = useState(localStorage.getItem('storeTemplate') || "minimal");
+  const [template, setTemplate] = useState(() => {
+    const savedTemplate = localStorage.getItem('storeTemplate');
+    return savedTemplate || "minimal";
+  });
   const [isSetupComplete, setIsSetupComplete] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const { toast } = useToast();
