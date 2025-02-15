@@ -21,6 +21,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
   const [products, setProducts] = useState([]);
   const [editingProduct, setEditingProduct] = useState(null);
   const [storeName, setStoreName] = useState("Your Beautiful Store");
+  const [showPreview, setShowPreview] = useState(false);
   const { toast } = useToast();
 
   const handleSheetSubmit = async () => {
@@ -76,7 +77,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
       selectedTemplate === "artisan" ? "bg-stone-100" :
       "bg-white"
     }`;
-    
+
     // Apply template-specific styles for preview
     const previewContainer = document.getElementById('preview-container');
     if (previewContainer) {
@@ -107,6 +108,18 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
     });
   };
 
+  const handlePreview = () => {
+    if (!whatsappNumber || !storeName || !template) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+    setShowPreview(true);
+  };
+
   const handleCreateStore = async () => {
     if (!whatsappNumber || !storeName || !template) {
       toast({
@@ -127,7 +140,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
     } catch (error) {
       console.error('Failed to save store settings:', error);
     }
-    
+
     if (!products.length) {
       toast({
         title: "Error",
@@ -139,6 +152,26 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
 
     onComplete(sheetUrl, template, whatsappNumber, storeName, products);
   };
+
+  const PreviewStore = () => (
+    <div className="p-6 bg-white rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-4">Store Preview</h2>
+      <div className={`border rounded-lg p-4 ${template === "luxury" || template === "minimal-dark" ? "bg-gray-800 text-white" : "bg-white"}`}>
+          <h3 className="text-xl font-semibold mb-2">Store Name: {storeName}</h3>
+          <p>Template: {template}</p>
+          <p>WhatsApp: {whatsappNumber}</p>
+          <h4 className="text-lg font-bold mt-4">Products</h4>
+          <ul>
+            {products.map(product => (
+              <li key={product.id} className="mb-2">
+                {product.name} - ${product.price}
+              </li>
+            ))}
+          </ul>
+      </div>
+    </div>
+  );
+
 
   return (
     <div className="max-w-md mx-auto p-6">
@@ -185,7 +218,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
                   </Button>
                 ))}
               </div>
-              
+
               <div className={`preview-container p-6 rounded-lg ${
                 template === "luxury" ? "bg-zinc-900 text-yellow-50" :
                 template === "minimal-dark" ? "bg-zinc-900 text-zinc-100" :
@@ -253,7 +286,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
                 </div>
               ))}
             </div>
-            
+
             {editingProduct && (
               <Dialog open={!!editingProduct} onOpenChange={() => setEditingProduct(null)}>
                 <DialogContent className="sm:max-w-[425px]">
@@ -305,6 +338,12 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
 
             <Button onClick={nextStep} className="w-full">Next</Button>
           </div>
+        ) : step === 3 ? (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-serif mb-4">Review Your Store</h2>
+            <PreviewStore/>
+            <Button onClick={handleCreateStore} className="w-full mt-4">Create Store</Button>
+          </div>
         ) : (
           <div className="space-y-4">
             <h2 className="text-2xl font-serif mb-4">Enter Your WhatsApp Number</h2>
@@ -319,6 +358,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
                 Your customers' orders will be sent to this number
               </p>
             </div>
+            <Button onClick={handlePreview} className="w-full mb-4">Preview</Button>
             <Button
               onClick={handleCreateStore}
               className="w-full"
