@@ -1,74 +1,73 @@
 
-import { NextApiRequest, NextApiResponse } from 'next';
+import { prisma } from '@/lib/db';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: Request) {
   if (req.method === 'GET') {
-    const storeId = req.query.storeId?.toString();
+    const url = new URL(req.url);
+    const storeId = url.searchParams.get('storeId');
 
     if (storeId) {
       try {
-        const storeData = {
-          id: storeId,
-          name: localStorage.getItem(`store_${storeId}_name`),
-          template: localStorage.getItem(`store_${storeId}_template`),
-          products: JSON.parse(localStorage.getItem(`store_${storeId}_products`) || '[]'),
-          whatsapp: localStorage.getItem(`store_${storeId}_whatsapp`)
-        };
+        const store = await prisma.store.findUnique({
+          where: { id: storeId },
+          include: { products: true }
+        });
 
-        if (!storeData.name) {
-          return res.status(404).json({ error: 'Store not found' });
+        if (!store) {
+          return new Response(JSON.stringify({ error: 'Store not found' }), { 
+            status: 404,
+            headers: { 'Content-Type': 'application/json' }
+          });
         }
 
-        return res.status(200).json(storeData);
+        return new Response(JSON.stringify(store), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        });
       } catch (error) {
         console.error('Store fetch error:', error);
-        return res.status(500).json({ error: 'Failed to fetch store data' });
+        return new Response(JSON.stringify({ error: 'Failed to fetch store data' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' }
+        });
       }
     }
-
-    // Return default store data if no ID provided
-    const defaultData = {
-      name: localStorage.getItem('storeName'),
-      template: localStorage.getItem('storeTemplate'),
-      products: JSON.parse(localStorage.getItem('storeProducts') || '[]'),
-      whatsapp: localStorage.getItem('shopkeeperWhatsapp')
-    };
-    return res.status(200).json(defaultData);
   }
 
   if (req.method === 'POST') {
     try {
-      const { name, template, whatsapp, products } = req.body;
-      const storeId = Date.now().toString();
+      const body = await req.json();
+      const { name, template, whatsapp, products } = body;
+      
+      const store = await prisma.store.create({
+        data: {
+          id: Date.now().toString(),
+          name,
+          template,
+          whatsapp,
+          products: {
+            create: products
+          },
+          status: 'preview'
+        },
+        include: { products: true }
+      });
 
-      // Save store data
-      localStorage.setItem(`store_${storeId}_name`, name);
-      localStorage.setItem(`store_${storeId}_template`, template);
-      localStorage.setItem(`store_${storeId}_whatsapp`, whatsapp);
-      localStorage.setItem(`store_${storeId}_products`, JSON.stringify(products || []));
-
-      // Save as default store
-      localStorage.setItem('storeName', name);
-      localStorage.setItem('storeTemplate', template);
-      localStorage.setItem('shopkeeperWhatsapp', whatsapp);
-      localStorage.setItem('storeProducts', JSON.stringify(products || []));
-
-      const baseUrl = process.env.NEXT_PUBLIC_URL || `${req.headers.host}`;
-      const storeUrl = `${baseUrl}/${storeId}`;
-
-      return res.status(200).json({ 
-        id: storeId, 
-        name, 
-        template, 
-        whatsapp, 
-        products,
-        url: storeUrl
+      return new Response(JSON.stringify(store), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
       });
     } catch (error) {
       console.error('Store creation error:', error);
-      return res.status(500).json({ error: 'Failed to create store' });
+      return new Response(JSON.stringify({ error: 'Failed to create store' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
   }
 
-  return res.status(405).json({ error: 'Method not allowed' });
+  return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+    status: 405,
+    headers: { 'Content-Type': 'application/json' }
+  });
 }

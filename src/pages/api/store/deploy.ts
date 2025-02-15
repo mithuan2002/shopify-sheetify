@@ -1,35 +1,56 @@
 
-import { NextApiRequest, NextApiResponse } from 'next';
+import { prisma } from '@/lib/db';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: Request) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 
-  const { storeId } = req.body;
-  
   try {
-    const storeName = localStorage.getItem(`store_${storeId}_name`);
-    if (!storeName) {
-      return res.status(404).json({ error: 'Store not found' });
+    const { storeId } = await req.json();
+    
+    const store = await prisma.store.findUnique({
+      where: { id: storeId }
+    });
+
+    if (!store) {
+      return new Response(JSON.stringify({ error: 'Store not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
-    const sanitizedStoreName = storeName
+    const sanitizedStoreName = store.name
       .toLowerCase()
-      .replace(/[^a-z0-9-]/g, '-') // Replace invalid chars with hyphens
-      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-      .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+      .replace(/[^a-z0-9-]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+    
     const deployedUrl = `${sanitizedStoreName}.mystore.shop`;
-    localStorage.setItem(`store_${storeId}_status`, 'public');
-    localStorage.setItem(`store_${storeId}_url`, deployedUrl);
-    localStorage.setItem(`store_${storeId}_visibility`, 'public');
 
-    return res.status(200).json({ 
+    const updatedStore = await prisma.store.update({
+      where: { id: storeId },
+      data: {
+        status: 'public',
+        url: deployedUrl
+      }
+    });
+
+    return new Response(JSON.stringify({ 
       url: `https://${deployedUrl}`,
       status: 'deployed'
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
     console.error('Deployment error:', error);
-    return res.status(500).json({ error: 'Failed to deploy store' });
+    return new Response(JSON.stringify({ error: 'Failed to deploy store' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
