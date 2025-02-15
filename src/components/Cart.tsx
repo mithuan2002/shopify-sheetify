@@ -7,7 +7,7 @@ import { useState } from "react";
 import { ShoppingCart } from "lucide-react";
 
 export const Cart = () => {
-  const { items, total, removeFromCart } = useCart();
+  const { items, total, removeFromCart, addToCart } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
 
