@@ -3,6 +3,10 @@ import { prisma } from '@/lib/db';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (!process.env.DATABASE_URL) {
+    return res.status(500).json({ error: 'Database configuration missing' });
+  }
+
   if (req.method === 'POST') {
     const { name, template, whatsapp } = req.body;
     if (!name || !whatsapp) {
