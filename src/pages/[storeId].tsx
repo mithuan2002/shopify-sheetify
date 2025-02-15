@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 import { ProductCard } from "@/components/ProductCard";
 import { StoreHeader } from "@/components/StoreHeader";
 import { Cart } from "@/components/Cart";
-import { Button } from "@/components/ui/button";
 
 const StorePage = () => {
   const { storeId } = useParams<{ storeId: string }>();
@@ -59,17 +58,6 @@ const StorePage = () => {
         storeName={storeData.name}
         template={storeData.template}
       />
-      {storeData.status !== 'deployed' && (
-        <div className="fixed bottom-4 right-4 z-50">
-          <Button 
-            onClick={handleDeploy}
-            disabled={isDeploying}
-            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold"
-          >
-            {isDeploying ? "Deploying..." : "Deploy to shop.link"}
-          </Button>
-        </div>
-      )}
       <main className="container mx-auto px-4 py-8">
         <div className="fixed top-4 right-4 z-50">
           <Cart />
