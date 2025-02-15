@@ -1,8 +1,7 @@
 
-import express from 'express';
-import type { Request, Response } from 'express';
+import { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(req: Request, res: Response) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
     const storeId = req.query.storeId?.toString();
 
@@ -28,18 +27,13 @@ export default async function handler(req: Request, res: Response) {
     }
 
     // Return default store data if no ID provided
-    try {
-      const defaultData = {
-        name: localStorage.getItem('storeName'),
-        template: localStorage.getItem('storeTemplate'),
-        products: JSON.parse(localStorage.getItem('storeProducts') || '[]'),
-        whatsapp: localStorage.getItem('shopkeeperWhatsapp')
-      };
-      return res.status(200).json(defaultData);
-    } catch (error) {
-      console.error('Default store fetch error:', error);
-      return res.status(500).json({ error: 'Failed to fetch store data' });
-    }
+    const defaultData = {
+      name: localStorage.getItem('storeName'),
+      template: localStorage.getItem('storeTemplate'),
+      products: JSON.parse(localStorage.getItem('storeProducts') || '[]'),
+      whatsapp: localStorage.getItem('shopkeeperWhatsapp')
+    };
+    return res.status(200).json(defaultData);
   }
 
   if (req.method === 'POST') {
@@ -53,13 +47,14 @@ export default async function handler(req: Request, res: Response) {
       localStorage.setItem(`store_${storeId}_whatsapp`, whatsapp);
       localStorage.setItem(`store_${storeId}_products`, JSON.stringify(products || []));
 
-      // Also save as default store
+      // Save as default store
       localStorage.setItem('storeName', name);
       localStorage.setItem('storeTemplate', template);
       localStorage.setItem('shopkeeperWhatsapp', whatsapp);
       localStorage.setItem('storeProducts', JSON.stringify(products || []));
 
-      const storeUrl = `${process.env.VITE_APP_URL || window.location.origin}/${storeId}`;
+      const baseUrl = process.env.NEXT_PUBLIC_URL || `${req.headers.host}`;
+      const storeUrl = `${baseUrl}/${storeId}`;
 
       return res.status(200).json({ 
         id: storeId, 

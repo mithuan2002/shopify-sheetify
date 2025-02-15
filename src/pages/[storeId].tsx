@@ -6,7 +6,7 @@ import { StoreHeader } from "@/components/StoreHeader";
 import { Cart } from "@/components/Cart";
 
 const StorePage = () => {
-  const { storeId } = useParams();
+  const { storeId } = useParams<{ storeId: string }>();
   const [storeData, setStoreData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
