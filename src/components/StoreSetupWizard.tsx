@@ -107,7 +107,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
     });
   };
 
-  const handleCreateStore = () => {
+  const handleCreateStore = async () => {
     if (!whatsappNumber || !storeName || !template) {
       toast({
         title: "Error",
