@@ -72,7 +72,15 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
       });
       return;
     }
-    onComplete(sheetUrl, template, whatsappNumber, storeName, products);
+    
+    const storeId = Date.now().toString();
+    localStorage.setItem(`store_${storeId}_name`, storeName);
+    localStorage.setItem(`store_${storeId}_template`, template);
+    localStorage.setItem(`store_${storeId}_products`, JSON.stringify(products));
+    localStorage.setItem(`store_${storeId}_status`, 'preview');
+    localStorage.setItem('shopkeeperWhatsapp', whatsappNumber.replace(/[^0-9+]/g, ''));
+    
+    window.location.href = `/${storeId}`;
   };
 
   return (
