@@ -10,10 +10,22 @@ import { Cart } from "@/components/Cart";
 
 const Index = () => {
   const [products, setProducts] = useState([]);
-  const [template, setTemplate] = useState(() => {
-    const savedTemplate = localStorage.getItem('storeTemplate');
-    return savedTemplate || "minimal";
-  });
+  const [template, setTemplate] = useState("minimal");
+
+  useEffect(() => {
+    const fetchStore = async () => {
+      try {
+        const response = await fetch('/api/store');
+        const store = await response.json();
+        if (store) {
+          setTemplate(store.template);
+        }
+      } catch (error) {
+        console.error('Failed to fetch store settings:', error);
+      }
+    };
+    fetchStore();
+  }, []);
   const [isSetupComplete, setIsSetupComplete] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const { toast } = useToast();

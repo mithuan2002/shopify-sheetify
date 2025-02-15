@@ -116,7 +116,17 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
       });
       return;
     }
-    localStorage.setItem('storeTemplate', template);
+    try {
+      const response = await fetch('/api/store', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: storeName, template, whatsapp: whatsappNumber })
+      });
+      const store = await response.json();
+      localStorage.setItem('storeId', store.id);
+    } catch (error) {
+      console.error('Failed to save store settings:', error);
+    }
     
     if (!products.length) {
       toast({
