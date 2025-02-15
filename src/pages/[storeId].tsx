@@ -9,6 +9,25 @@ const StorePage = () => {
   const { storeId } = useParams<{ storeId: string }>();
   const [storeData, setStoreData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isDeploying, setIsDeploying] = useState(false);
+  
+  const handleDeploy = async () => {
+    setIsDeploying(true);
+    try {
+      const response = await fetch('/api/store/deploy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ storeId })
+      });
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error('Deploy error:', error);
+    }
+    setIsDeploying(false);
+  };
 
   useEffect(() => {
     const fetchStore = async () => {

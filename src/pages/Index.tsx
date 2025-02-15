@@ -53,8 +53,9 @@ const Index = () => {
     localStorage.setItem(`store_${storeId}_name`, storeName);
     localStorage.setItem(`store_${storeId}_template`, selectedTemplate);
     localStorage.setItem(`store_${storeId}_products`, JSON.stringify(initialProducts));
+    localStorage.setItem(`store_${storeId}_status`, 'preview');
     
-    const storeUrl = `${window.location.origin}/${storeId}`;
+    const previewUrl = `${window.location.origin}/${storeId}`;
     toast({
       title: "Success",
       description: (
