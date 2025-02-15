@@ -1,7 +1,7 @@
 import { FC, useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { useToast } from "./ui/use-toast";
 
 interface StoreHeaderProps {
   storeName: string;
@@ -10,10 +10,6 @@ interface StoreHeaderProps {
   onStoreNameChange?: (name: string) => void;
   isOwner?: boolean;
 }
-
-import { useState } from 'react';
-import { Button } from './ui/button';
-import { useToast } from './ui/use-toast';
 
 const TEMPLATE_STYLES = {
   minimal: "py-8 mb-8 bg-white text-gray-900",
@@ -29,8 +25,6 @@ const TEMPLATE_STYLES = {
 const TEMPLATE_OPTIONS = Object.keys(TEMPLATE_STYLES);
 
 export const StoreHeader: FC<StoreHeaderProps> = ({ storeName, template = 'minimal', onTemplateChange, onStoreNameChange, isOwner }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedName, setEditedName] = useState(storeName);
   const { toast } = useToast();
 
   const headerClass = template === "luxury" || template === "minimal-dark" 
@@ -48,16 +42,6 @@ export const StoreHeader: FC<StoreHeaderProps> = ({ storeName, template = 'minim
           <h1 className={`text-3xl font-bold ${template?.includes('dark') ? 'text-white' : 'text-gray-900'}`}>
             {storeName}
           </h1>
-          {isOwner && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute -right-8 top-1/2 -translate-y-1/2"
-              onClick={() => setIsEditing(true)}
-            >
-              Edit
-            </Button>
-          )}
         </div>
 
         {isOwner && (
