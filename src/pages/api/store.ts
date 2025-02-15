@@ -5,6 +5,9 @@ import { NextApiRequest, NextApiResponse } from 'next';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     const { name, template, whatsapp } = req.body;
+    if (!name || !whatsapp) {
+      return res.status(400).json({ error: 'Name and WhatsApp number are required' });
+    }
     try {
       const store = await prisma.store.create({
         data: {
