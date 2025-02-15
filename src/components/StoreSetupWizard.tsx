@@ -108,6 +108,14 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
   };
 
   const handleCreateStore = () => {
+    if (!whatsappNumber) {
+      toast({
+        title: "Error",
+        description: "Please enter a WhatsApp number",
+        variant: "destructive",
+      });
+      return;
+    }
     onComplete(sheetUrl, template, whatsappNumber, storeName, products);
   };
 

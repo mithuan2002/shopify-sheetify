@@ -89,7 +89,6 @@ const Index = () => {
               key={product.id}
               {...product}
               template={template}
-              isOwner={isOwner}
               onEdit={() => handleEdit(product.id)}
               onDelete={() => handleDelete(product.id)}
             />
