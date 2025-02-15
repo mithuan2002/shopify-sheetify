@@ -65,7 +65,7 @@ const StorePage = () => {
         template={storeData.template}
         isPreview={!storeData.status || storeData.status === 'preview'}
       />
-      {storeData.status !== 'deployed' && (
+      {(storeData?.status === 'preview' || !storeData?.status) && (
         <div className="fixed bottom-4 right-4 z-50">
           <Button 
             onClick={handleDeploy}

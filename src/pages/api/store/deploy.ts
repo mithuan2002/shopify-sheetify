@@ -14,7 +14,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(404).json({ error: 'Store not found' });
     }
 
-    const deployedUrl = `${storeName.toLowerCase().replace(/\s+/g, '-')}.shop.link`;
+    const sanitizedStoreName = storeName
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, '-') // Replace invalid chars with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+      .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+    const deployedUrl = `${sanitizedStoreName}.mystore.shop`;
     localStorage.setItem(`store_${storeId}_status`, 'deployed');
     localStorage.setItem(`store_${storeId}_url`, deployedUrl);
 
