@@ -15,20 +15,30 @@ export const ProductCard = ({ id, name, price, description, imageUrl }: ProductC
   const { addToCart } = useCart();
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        {imageUrl && (
-          <img src={imageUrl} alt={name} className="w-full h-48 object-cover rounded-t-lg" />
-        )}
-        <CardTitle>{name}</CardTitle>
-        <CardDescription>${price.toFixed(2)}</CardDescription>
+    <Card className="w-full h-full flex flex-col hover:shadow-lg transition-shadow">
+      <CardHeader className="p-0">
+        <div className="relative w-full pt-[100%]">
+          <img 
+            src={imageUrl || "/placeholder.svg"} 
+            alt={name}
+            className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
+          />
+        </div>
+        <div className="p-4">
+          <CardTitle className="text-xl">{name}</CardTitle>
+          <CardDescription className="text-lg font-semibold mt-2">
+            ${price.toFixed(2)}
+          </CardDescription>
+        </div>
       </CardHeader>
-      <CardContent>
-        {description && <p className="text-sm text-gray-600">{description}</p>}
+      <CardContent className="flex-grow">
+        {description && (
+          <p className="text-sm text-gray-600 line-clamp-2">{description}</p>
+        )}
       </CardContent>
-      <CardFooter>
+      <CardFooter className="pt-4">
         <Button 
-          className="w-full" 
+          className="w-full bg-primary hover:bg-primary/90" 
           onClick={() => addToCart({ id, name, price })}
         >
           Add to Cart

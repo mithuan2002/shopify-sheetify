@@ -8,10 +8,10 @@ import { Cart } from "@/components/Cart";
 const Index = () => {
   const [products, setProducts] = useState([]);
   const [template, setTemplate] = useState("minimal");
+  const [storeName, setStoreName] = useState("");
   const [isSetupComplete, setIsSetupComplete] = useState(false);
   const { toast } = useToast();
 
-  // Check if store is already set up
   useEffect(() => {
     const fetchStoreData = async () => {
       try {
@@ -19,7 +19,8 @@ const Index = () => {
         const storeData = await response.json();
         if (storeData) {
           setTemplate(storeData.template);
-          setProducts(storeData.products);
+          setProducts(storeData.products || []);
+          setStoreName(storeData.name || "My Store");
           setIsSetupComplete(true);
         }
       } catch (error) {
@@ -54,7 +55,6 @@ const Index = () => {
     });
   };
 
-  // If setup is not complete, show setup wizard
   if (!isSetupComplete) {
     return (
       <div className="min-h-screen bg-background py-16 relative">
@@ -65,15 +65,19 @@ const Index = () => {
     );
   }
 
-  // If setup is complete, show store
   return (
-    <div className={`min-h-screen bg-background`}>
-      <div className="fixed top-4 right-4 z-50">
-        <Cart />
-      </div>
-      <div className="container mx-auto px-4 py-8">
-        <StoreHeader />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+    <div className="min-h-screen bg-background">
+      <StoreHeader 
+        storeName={storeName}
+        template={template}
+        isOwner={true}
+        onTemplateChange={setTemplate}
+      />
+      <main className="container mx-auto px-4 py-8">
+        <div className="fixed top-4 right-4 z-50">
+          <Cart />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
           {products.map((product: any) => (
             <ProductCard
               key={product.id}
@@ -81,11 +85,11 @@ const Index = () => {
               name={product.name}
               price={product.price}
               description={product.description}
-              imageUrl={product.imageUrl}
+              imageUrl={product.image}
             />
           ))}
         </div>
-      </div>
+      </main>
     </div>
   );
 };
