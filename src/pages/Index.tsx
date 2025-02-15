@@ -24,7 +24,7 @@ const Index = () => {
         console.error('Failed to fetch store settings:', error);
       }
     };
-    fetchStore();
+    void fetchStore();
   }, []);
   const [isSetupComplete, setIsSetupComplete] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
