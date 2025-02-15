@@ -142,11 +142,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
   };
 
   const handleBack = () => {
-    if (step === 3) {
-      setStep(2);
-    } else if (step === 2) {
-      setStep(1);
-    }
+    setStep(prev => prev - 1);
   };
 
   const handleRestart = () => {

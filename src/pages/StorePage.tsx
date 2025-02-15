@@ -54,9 +54,9 @@ const StorePage = () => {
     }
     //Added this to handle back navigation.  Assumes '/templates' is the template selection route
     const handleBackButton = () => {
-      if (localStorage.getItem('returnToTemplate') === 'true') {
-          navigate('/templates');
-          localStorage.removeItem('returnToTemplate');
+      const currentStep = localStorage.getItem('currentStep');
+      if (currentStep) {
+        navigate('/', { state: { step: parseInt(currentStep) } });
       }
     };
 
