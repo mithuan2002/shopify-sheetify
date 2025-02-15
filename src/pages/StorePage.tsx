@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { ProductCard } from "@/components/ProductCard";
@@ -11,7 +10,7 @@ const StorePage = () => {
   const [storeData, setStoreData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [isDeploying, setIsDeploying] = useState(false);
-  
+
   const handleDeploy = async () => {
     setIsDeploying(true);
     try {
@@ -37,18 +36,18 @@ const StorePage = () => {
         const template = localStorage.getItem(`store_${storeId}_template`);
         const products = JSON.parse(localStorage.getItem(`store_${storeId}_products`) || '[]');
         const status = localStorage.getItem(`store_${storeId}_status`);
-        
+
         if (!name) {
           throw new Error('Store not found');
         }
-        
+
         setStoreData({ name, template, products, status });
       } catch (error) {
         setError('Store not found');
         console.error('Failed to fetch store:', error);
       }
     };
-    
+
     if (storeId) {
       fetchStore();
     }
@@ -79,17 +78,6 @@ const StorePage = () => {
         template={storeData.template}
         isPreview={!storeData.status || storeData.status === 'preview'}
       />
-      {(storeData?.status === 'preview' || !storeData?.status) && (
-        <div className="fixed bottom-4 right-4 z-50">
-          <Button 
-            onClick={handleDeploy}
-            disabled={isDeploying}
-            className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold px-6 py-3 text-lg shadow-lg"
-          >
-            {isDeploying ? "Deploying..." : "Ready to Deploy? Click Here!"}
-          </Button>
-        </div>
-      )}
       <main className="container mx-auto px-4 py-8">
         <div className="fixed top-4 right-4 z-50">
           <Cart />
