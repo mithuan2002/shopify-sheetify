@@ -12,12 +12,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           template,
           whatsapp,
           products: {
-            create: products.map((product: any) => ({
+            create: products?.map((product: any) => ({
               name: product.name,
               price: product.price,
               description: product.description,
-              image: product.imageUrl
-            }))
+              image: product.image || '/placeholder.svg'
+            })) || []
           }
         },
         include: {
@@ -27,22 +27,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json(store);
     } catch (error) {
       console.error('Store creation error:', error);
-      return res.status(500).json({ error: 'Failed to create store' });
+      return res.status(500).json({ error: 'Failed to create store', details: error.message });
     }
   }
 
   if (req.method === 'GET') {
     try {
       const store = await prisma.store.findFirst({
-        orderBy: { createdAt: 'desc' },
         include: {
           products: true
+        },
+        orderBy: {
+          createdAt: 'desc'
         }
       });
+      
+      if (!store) {
+        return res.status(404).json({ 
+          name: "My Store",
+          template: "minimal",
+          products: []
+        });
+      }
+      
       return res.status(200).json(store);
     } catch (error) {
       console.error('Store fetch error:', error);
-      return res.status(500).json({ error: 'Failed to fetch store' });
+      return res.status(500).json({ error: 'Failed to fetch store', details: error.message });
     }
   }
 }
