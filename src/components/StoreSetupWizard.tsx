@@ -140,6 +140,10 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
     onComplete(sheetUrl, template, whatsappNumber, storeName, products);
   };
 
+  const handleBack = () => {
+    setStep(step - 1);
+  };
+
   const handleRestart = () => {
     setStep(1);
     setSheetUrl("");
@@ -187,8 +191,8 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
         ) : step === 2 ? (
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
-              <Button variant="secondary" onClick={() => setStep(1)} className="flex items-center gap-2">
-                ← Back to Sheet
+              <Button variant="secondary" onClick={handleBack} className="flex items-center gap-2">
+                ← Back
               </Button>
               <Button variant="ghost" onClick={handleRestart}>Restart Setup</Button>
             </div>
@@ -329,8 +333,8 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
         ) : (
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
-              <Button variant="secondary" onClick={() => setStep(2)} className="flex items-center gap-2">
-                ← Back to Template
+              <Button variant="secondary" onClick={handleBack} className="flex items-center gap-2">
+                ← Back
               </Button>
               <Button variant="ghost" onClick={handleRestart}>Restart Setup</Button>
             </div>
