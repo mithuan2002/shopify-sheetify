@@ -4,6 +4,13 @@ import { StoreHeader } from "@/components/StoreHeader";
 import { useToast } from "@/components/ui/use-toast";
 import { StoreSetupWizard } from "@/components/StoreSetupWizard";
 import { Cart } from "@/components/Cart";
+import { Button } from "@/components/ui/button";
+
+// Function to clear all store data
+const clearStoreData = () => {
+  localStorage.clear();
+  window.location.href = '/';
+};
 
 const Index = () => {
   const [products, setProducts] = useState([]);
@@ -62,6 +69,13 @@ const Index = () => {
   if (!isSetupComplete) {
     return (
       <div className="min-h-screen bg-background py-16 relative">
+        <Button 
+          onClick={clearStoreData}
+          className="absolute top-4 right-4"
+          variant="outline"
+        >
+          Reset Store
+        </Button>
         <h1 className="text-2xl font-bold text-center mb-8">Welcome to Store Builder</h1>
         <p className="text-center mb-8 text-muted-foreground">Let's set up your store in 3 easy steps:</p>
         <StoreSetupWizard onComplete={handleSetupComplete} />
