@@ -171,7 +171,12 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
           </div>
         ) : step === 2 ? (
           <div className="space-y-4">
-            <h2 className="text-2xl font-serif mb-4">Choose Your Store Template</h2>
+            <div className="flex items-center justify-between mb-4">
+              <Button variant="ghost" onClick={() => setStep(1)}>
+                ← Back
+              </Button>
+              <h2 className="text-2xl font-serif">Choose Your Store Template</h2>
+            </div>
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 {["minimal", "elegant", "modern", "boutique", "vintage", "luxury", "minimal-dark", "artisan", "futuristic", "geometric", "nature", "tech"].map((templateOption) => (
@@ -307,7 +312,12 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
           </div>
         ) : (
           <div className="space-y-4">
-            <h2 className="text-2xl font-serif mb-4">Enter Your WhatsApp Number</h2>
+            <div className="flex items-center justify-between mb-4">
+              <Button variant="ghost" onClick={() => setStep(2)}>
+                ← Back
+              </Button>
+              <h2 className="text-2xl font-serif">Enter Your WhatsApp Number</h2>
+            </div>
             <div className="space-y-2">
               <Input
                 placeholder="WhatsApp Number (with country code)"
