@@ -20,8 +20,13 @@ serve(async (req) => {
     )
 
     const NETLIFY_PAT = Deno.env.get('NETLIFY_PAT')
+    const NETLIFY_WEBHOOK_URL = Deno.env.get('NETLIFY_WEBHOOK_URL')
+    
     if (!NETLIFY_PAT) {
       throw new Error('Netlify PAT not configured')
+    }
+    if (!NETLIFY_WEBHOOK_URL) {
+      throw new Error('Netlify webhook URL not configured')
     }
 
     const { storeId } = await req.json()
@@ -94,8 +99,19 @@ serve(async (req) => {
       throw new Error('Failed to update store status')
     }
 
-    // Trigger initial build
-    console.log('Triggering initial build...')
+    // Trigger initial build using webhook
+    console.log('Triggering initial build via webhook...')
+    const buildResponse = await fetch(NETLIFY_WEBHOOK_URL, {
+      method: 'POST'
+    })
+
+    if (!buildResponse.ok) {
+      console.error('Failed to trigger build webhook:', await buildResponse.text())
+      // Don't throw error here as the site is already created
+      console.log('Site created successfully but build trigger failed')
+    } else {
+      console.log('Build triggered successfully')
+    }
     
     return new Response(
       JSON.stringify({ 
