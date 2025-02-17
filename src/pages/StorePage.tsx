@@ -6,6 +6,7 @@ import { StoreHeader } from "@/components/StoreHeader";
 import { Cart } from "@/components/Cart";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const StorePage = () => {
   const { storeId } = useParams<{ storeId: string }>();
@@ -15,30 +16,27 @@ const StorePage = () => {
   const [isDeploying, setIsDeploying] = useState(false);
 
   const handleDeploy = async () => {
+    if (!storeId) return;
+    
     setIsDeploying(true);
     try {
-      // Sanitize store name for URL
-      const sanitizedStoreName = storeData.name
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-|-$/g, '');
+      const { data, error } = await supabase.functions.invoke('deploy-store', {
+        body: { storeId }
+      });
 
-      // Save deployment status
-      localStorage.setItem(`store_${storeId}_status`, 'deployed');
-      localStorage.setItem(`store_${storeId}_url`, `https://${sanitizedStoreName}.netlify.app`);
-      
+      if (error) throw error;
+
       toast({
         title: "Store Deployed!",
-        description: `Your store is now live at ${sanitizedStoreName}.netlify.app`,
+        description: `Your store is now live at ${data.url}`,
       });
 
-      // Update store status in local storage
-      setStoreData({
-        ...storeData,
+      // Update local state
+      setStoreData(prev => ({
+        ...prev,
         status: 'deployed',
-        url: `https://${sanitizedStoreName}.netlify.app`
-      });
+        netlify_url: data.url
+      }));
     } catch (error) {
       console.error('Deploy error:', error);
       toast({
@@ -53,18 +51,22 @@ const StorePage = () => {
 
   useEffect(() => {
     const fetchStore = async () => {
+      if (!storeId) return;
+
       try {
-        const name = localStorage.getItem(`store_${storeId}_name`);
-        const template = localStorage.getItem(`store_${storeId}_template`);
-        const products = JSON.parse(localStorage.getItem(`store_${storeId}_products`) || '[]');
-        const status = localStorage.getItem(`store_${storeId}_status`);
-        const url = localStorage.getItem(`store_${storeId}_url`);
+        const { data: store, error: storeError } = await supabase
+          .from('stores')
+          .select(`
+            *,
+            products (*)
+          `)
+          .eq('id', storeId)
+          .single();
 
-        if (!name) {
-          throw new Error('Store not found');
-        }
+        if (storeError) throw storeError;
+        if (!store) throw new Error('Store not found');
 
-        setStoreData({ name, template, products, status, url });
+        setStoreData(store);
       } catch (error) {
         setError('Store not found');
         console.error('Failed to fetch store:', error);
@@ -113,7 +115,7 @@ const StorePage = () => {
       ) : (
         <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
           <a
-            href={storeData.url}
+            href={storeData.netlify_url}
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-gray-600 hover:text-gray-900 transition-colors"

@@ -9,7 +9,80 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      products: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          image: string | null
+          name: string
+          price: number
+          store_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image?: string | null
+          name: string
+          price: number
+          store_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image?: string | null
+          name?: string
+          price?: number
+          store_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stores: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          netlify_url: string | null
+          status: string | null
+          template: string
+          updated_at: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          netlify_url?: string | null
+          status?: string | null
+          template?: string
+          updated_at?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          netlify_url?: string | null
+          status?: string | null
+          template?: string
+          updated_at?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
