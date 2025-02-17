@@ -19,6 +19,11 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
+    const NETLIFY_PAT = Deno.env.get('NETLIFY_PAT')
+    if (!NETLIFY_PAT) {
+      throw new Error('Netlify PAT not configured')
+    }
+
     const { storeId } = await req.json()
 
     // Get store data
@@ -36,43 +41,73 @@ serve(async (req) => {
       )
     }
 
-    // Simulate Netlify deployment (in a real implementation, you would integrate with Netlify's API)
-    const sanitizedStoreName = store.name
+    // Create a new site on Netlify
+    const siteName = `${store.name}-${store.id}`
       .toLowerCase()
       .replace(/[^a-z0-9]/g, '-')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '')
 
-    const netlifyUrl = `https://${sanitizedStoreName}.netlify.app`
+    console.log('Creating Netlify site:', siteName)
 
-    // Update store status and URL
+    const createSiteResponse = await fetch('https://api.netlify.com/api/v1/sites', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${NETLIFY_PAT}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: siteName,
+        custom_domain: null,
+        build_settings: {
+          cmd: 'npm run build',
+          dir: 'dist',
+          env: {
+            STORE_ID: store.id
+          }
+        }
+      })
+    })
+
+    if (!createSiteResponse.ok) {
+      const error = await createSiteResponse.text()
+      console.error('Netlify site creation failed:', error)
+      throw new Error('Failed to create Netlify site')
+    }
+
+    const siteData = await createSiteResponse.json()
+    const siteUrl = siteData.ssl_url || siteData.url
+
+    console.log('Netlify site created:', siteUrl)
+
+    // Update store with Netlify URL
     const { error: updateError } = await supabase
       .from('stores')
       .update({ 
         status: 'deployed',
-        netlify_url: netlifyUrl,
+        netlify_url: siteUrl
       })
       .eq('id', storeId)
 
     if (updateError) {
       console.error('Error updating store:', updateError)
-      return new Response(
-        JSON.stringify({ error: 'Failed to update store status' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      throw new Error('Failed to update store status')
     }
 
+    // Trigger initial build
+    console.log('Triggering initial build...')
+    
     return new Response(
       JSON.stringify({ 
         success: true,
-        url: netlifyUrl
+        url: siteUrl
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
     console.error('Deployment error:', error)
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ error: error.message || 'Internal server error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
