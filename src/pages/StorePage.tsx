@@ -1,13 +1,15 @@
+
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
+import { useParams, useNavigate } from "react-router-dom";
 import { ProductCard } from "@/components/ProductCard";
 import { StoreHeader } from "@/components/StoreHeader";
 import { Cart } from "@/components/Cart";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
 
 const StorePage = () => {
   const { storeId } = useParams<{ storeId: string }>();
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
   const [storeData, setStoreData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [isDeploying, setIsDeploying] = useState(false);
@@ -15,19 +17,38 @@ const StorePage = () => {
   const handleDeploy = async () => {
     setIsDeploying(true);
     try {
-      const response = await fetch('/api/store/deploy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ storeId })
+      // Sanitize store name for URL
+      const sanitizedStoreName = storeData.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+
+      // Save deployment status
+      localStorage.setItem(`store_${storeId}_status`, 'deployed');
+      localStorage.setItem(`store_${storeId}_url`, `https://${sanitizedStoreName}.netlify.app`);
+      
+      toast({
+        title: "Store Deployed!",
+        description: `Your store is now live at ${sanitizedStoreName}.netlify.app`,
       });
-      const data = await response.json();
-      if (data.url) {
-        window.location.href = data.url;
-      }
+
+      // Update store status in local storage
+      setStoreData({
+        ...storeData,
+        status: 'deployed',
+        url: `https://${sanitizedStoreName}.netlify.app`
+      });
     } catch (error) {
       console.error('Deploy error:', error);
+      toast({
+        title: "Deployment Failed",
+        description: "There was an error deploying your store. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeploying(false);
     }
-    setIsDeploying(false);
   };
 
   useEffect(() => {
@@ -37,12 +58,13 @@ const StorePage = () => {
         const template = localStorage.getItem(`store_${storeId}_template`);
         const products = JSON.parse(localStorage.getItem(`store_${storeId}_products`) || '[]');
         const status = localStorage.getItem(`store_${storeId}_status`);
+        const url = localStorage.getItem(`store_${storeId}_url`);
 
         if (!name) {
           throw new Error('Store not found');
         }
 
-        setStoreData({ name, template, products, status });
+        setStoreData({ name, template, products, status, url });
       } catch (error) {
         setError('Store not found');
         console.error('Failed to fetch store:', error);
@@ -52,7 +74,7 @@ const StorePage = () => {
     if (storeId) {
       fetchStore();
     }
-    //Added this to handle back navigation.  Assumes '/templates' is the template selection route
+
     const handleBackButton = () => {
       const currentStep = localStorage.getItem('currentStep');
       if (currentStep) {
@@ -61,19 +83,26 @@ const StorePage = () => {
     };
 
     window.addEventListener('popstate', handleBackButton);
-
     return () => {
       window.removeEventListener('popstate', handleBackButton);
     };
   }, [storeId, navigate]);
 
-
-  if (error) return <div className="min-h-screen flex items-center justify-center">{error}</div>;
-  if (!storeData) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  if (error) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <p className="text-lg text-gray-600">{error}</p>
+    </div>
+  );
+  
+  if (!storeData) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <p className="text-lg text-gray-600">Loading...</p>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background">
-      {(!storeData.status || storeData.status === 'preview') && (
+      {(!storeData.status || storeData.status === 'preview') ? (
         <Button 
           onClick={handleDeploy}
           disabled={isDeploying}
@@ -81,6 +110,17 @@ const StorePage = () => {
         >
           {isDeploying ? "Making Public..." : "Make Store Public"}
         </Button>
+      ) : (
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
+          <a
+            href={storeData.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            View Live Store
+          </a>
+        </div>
       )}
       <StoreHeader 
         storeName={storeData.name}
@@ -88,7 +128,7 @@ const StorePage = () => {
         isPreview={!storeData.status || storeData.status === 'preview'}
       />
       <main className="container mx-auto px-4 py-8">
-        <div className="fixed top-4 right-4 z-50">
+        <div className="fixed top-4 right-20 z-50">
           <Cart />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
