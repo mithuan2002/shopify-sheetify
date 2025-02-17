@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { StoreHeader } from "@/components/StoreHeader";
@@ -94,8 +95,7 @@ const Index = () => {
       <StoreHeader 
         storeName={storeName}
         template={template}
-        isOwner={true}
-        onTemplateChange={setTemplate}
+        isPreview={true}
       />
       <main className="container mx-auto px-4 py-8">
         <div className="fixed top-4 right-4 z-50">
