@@ -157,9 +157,18 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
                     Sample Store Layout
                   </div>
                   <div className="flex gap-2">
-                    <div className="w-16 h-16 bg-black/10 rounded"></div>
-                    <div className="w-16 h-16 bg-black/10 rounded"></div>
-                    <div className="w-16 h-16 bg-black/10 rounded"></div>
+                    {products.slice(0, 3).map((product: any) => (
+                      <div key={product.id} className="w-16 h-16 rounded overflow-hidden">
+                        <img 
+                          src={product.image || "/placeholder.svg"} 
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ))}
+                    {Array(Math.max(0, 3 - products.length)).fill(0).map((_, i) => (
+                      <div key={i} className="w-16 h-16 bg-black/10 rounded" />
+                    ))}
                   </div>
                 </div>
               </div>
@@ -173,10 +182,15 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
             {products.map((product: any) => (
               <div key={product.id} className="bg-white rounded-lg shadow-md p-4">
                 <div className="flex items-center gap-4">
-                  <img src={product.imageUrl} alt={product.name} className="w-16 h-16 object-cover rounded" />
+                  <img 
+                    src={product.image || "/placeholder.svg"} 
+                    alt={product.name} 
+                    className="w-20 h-20 object-cover rounded-lg shadow-sm" 
+                  />
                   <div>
                     <h3 className="font-semibold">{product.name}</h3>
-                    <p className="text-sm text-gray-500">${product.price}</p>
+                    <p className="text-sm text-gray-500">${product.price.toFixed(2)}</p>
+                    <p className="text-xs text-gray-400 mt-1 line-clamp-2">{product.description}</p>
                   </div>
                 </div>
               </div>
