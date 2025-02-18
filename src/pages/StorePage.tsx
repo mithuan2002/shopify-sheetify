@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ProductCard } from "@/components/ProductCard";
 import { StoreHeader } from "@/components/StoreHeader";
 import { Cart } from "@/components/Cart";
+import { Button } from "@/components/ui/button";
 
 const StorePage = () => {
   const { storeId } = useParams<{ storeId: string }>();
@@ -53,6 +54,12 @@ const StorePage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Button 
+        className="fixed top-4 right-4 z-50 bg-black text-white hover:bg-gray-800 font-semibold px-6"
+        onClick={() => window.location.href = '/deploy'}
+      >
+        Make Store Public
+      </Button>
       <StoreHeader 
         storeName={storeData.name}
         template={storeData.template}
