@@ -54,17 +54,19 @@ const StorePage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Button 
-        className="fixed top-4 right-4 z-50 bg-black text-white hover:bg-gray-800 font-semibold px-6"
-        onClick={() => window.location.href = '/deploy'}
-      >
-        Make Store Public
-      </Button>
       <StoreHeader 
         storeName={storeData.name}
         template={storeData.template}
         isPreview={true}
       />
+      <div className="container mx-auto px-4 mt-4 flex justify-end">
+        <Button 
+          className="bg-black text-white hover:bg-gray-800 font-semibold px-6"
+          onClick={() => window.location.href = '/deploy'}
+        >
+          Make Store Public
+        </Button>
+      </div>
       <main className="container mx-auto px-4 py-8">
         <div className="fixed top-4 right-20 z-50">
           <Cart />
