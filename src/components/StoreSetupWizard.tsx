@@ -138,27 +138,27 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
             <div className="mt-4 border rounded-lg p-4 bg-white shadow-sm">
               <h3 className="text-lg font-medium mb-2">Template Preview</h3>
               <div className={`aspect-video rounded-lg overflow-hidden ${
-                template === "minimal" ? "bg-[radial-gradient(circle_at_1_1,#ffffff,transparent)_0_0/15px_15px] bg-white" :
-                template === "modern" ? "bg-[conic-gradient(from_90deg_at_50%_-10%,#3b82f6,#4f46e5,#7c3aed)]" :
-                template === "elegant" ? "bg-slate-50 border border-gray-200" :
-                template === "boutique" ? "bg-gradient-to-br from-pink-100 via-rose-200 to-pink-300" :
-                template === "vintage" ? "bg-amber-50 border-4 border-double border-amber-800" :
+                template === "minimal" ? "bg-white" :
+                template === "modern" ? "bg-gradient-to-br from-blue-600 to-purple-600" :
+                template === "elegant" ? "bg-slate-50" :
+                template === "boutique" ? "bg-rose-50" :
+                template === "vintage" ? "bg-amber-50" :
                 template === "luxury" ? "bg-gray-900" :
                 template === "minimal-dark" ? "bg-gray-900" :
                 template === "artisan" ? "bg-stone-100" : ""
               }`}>
-                <div className="h-full flex flex-col items-center justify-center p-4">
-                  <div className={`text-xl font-semibold mb-2 ${
+                <div className="h-full flex flex-col items-start p-4">
+                  <div className={`text-2xl font-semibold mb-4 ${
                     template === "modern" || template === "luxury" || template === "minimal-dark" ? "text-white" :
                     template === "boutique" ? "text-rose-900" :
                     template === "vintage" ? "text-amber-900" :
                     "text-gray-900"
                   }`}>
-                    Sample Store Layout
+                    {storeName}
                   </div>
-                  <div className="flex gap-2">
+                  <div className="grid grid-cols-3 gap-2 w-full mt-2">
                     {products.slice(0, 3).map((product: any) => (
-                      <div key={product.id} className="w-16 h-16 rounded overflow-hidden">
+                      <div key={product.id} className="aspect-square rounded-md overflow-hidden bg-white shadow-sm">
                         <img 
                           src={product.image || "/placeholder.svg"} 
                           alt={product.name}
@@ -167,7 +167,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
                       </div>
                     ))}
                     {Array(Math.max(0, 3 - products.length)).fill(0).map((_, i) => (
-                      <div key={i} className="w-16 h-16 bg-black/10 rounded" />
+                      <div key={i} className="aspect-square bg-black/5 rounded-md" />
                     ))}
                   </div>
                 </div>
