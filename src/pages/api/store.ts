@@ -1,5 +1,6 @@
 
 import { prisma } from '@/lib/db';
+import { v4 as uuidv4 } from 'uuid';
 
 export default async function handler(req: Request) {
   if (req.method === 'GET') {
@@ -41,7 +42,7 @@ export default async function handler(req: Request) {
       
       const store = await prisma.store.create({
         data: {
-          id: Date.now().toString(),
+          id: uuidv4(),
           name,
           template,
           whatsapp,
