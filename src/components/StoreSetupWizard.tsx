@@ -73,7 +73,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
       return;
     }
     
-    const storeId = Date.now().toString();
+    const storeId = crypto.randomUUID();
     localStorage.setItem(`store_${storeId}_name`, storeName);
     localStorage.setItem(`store_${storeId}_template`, template);
     localStorage.setItem(`store_${storeId}_products`, JSON.stringify(products));

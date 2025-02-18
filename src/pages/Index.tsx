@@ -63,7 +63,7 @@ const Index = () => {
     localStorage.setItem('storeProducts', JSON.stringify(initialProducts));
     setIsSetupComplete(true);
 
-    const storeId = Date.now().toString();
+    const storeId = crypto.randomUUID();
     localStorage.setItem(`store_${storeId}_name`, storeName);
     localStorage.setItem(`store_${storeId}_template`, selectedTemplate);
     localStorage.setItem(`store_${storeId}_products`, JSON.stringify(initialProducts));
