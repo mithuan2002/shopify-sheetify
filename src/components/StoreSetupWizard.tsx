@@ -77,7 +77,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
     localStorage.setItem(`store_${storeId}_name`, storeName);
     localStorage.setItem(`store_${storeId}_template`, template);
     localStorage.setItem(`store_${storeId}_products`, JSON.stringify(products));
-    localStorage.setItem(`store_${storeId}_status`, 'preview');
+    
     localStorage.setItem('shopkeeperWhatsapp', whatsappNumber.replace(/[^0-9+]/g, ''));
     
     window.location.href = `/${storeId}`;
