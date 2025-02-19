@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { StoreSetupWizard } from "@/components/StoreSetupWizard";
 import { Cart } from "@/components/Cart";
 import { Button } from "@/components/ui/button";
+import { v4 as uuidv4 } from 'uuid';
 
 // Function to clear all store data
 const clearStoreData = () => {
@@ -63,7 +64,7 @@ const Index = () => {
     localStorage.setItem('storeProducts', JSON.stringify(initialProducts));
     setIsSetupComplete(true);
 
-    const storeId = crypto.randomUUID();
+    const storeId = uuidv4();
     localStorage.setItem(`store_${storeId}_name`, storeName);
     localStorage.setItem(`store_${storeId}_template`, selectedTemplate);
     localStorage.setItem(`store_${storeId}_products`, JSON.stringify(initialProducts));

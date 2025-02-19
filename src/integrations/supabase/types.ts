@@ -50,6 +50,44 @@ export type Database = {
           },
         ]
       }
+      spreadsheet_connections: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_synced_at: string | null
+          spreadsheet_type: string
+          spreadsheet_url: string
+          store_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_synced_at?: string | null
+          spreadsheet_type: string
+          spreadsheet_url: string
+          store_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_synced_at?: string | null
+          spreadsheet_type?: string
+          spreadsheet_url?: string
+          store_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spreadsheet_connections_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stores: {
         Row: {
           created_at: string | null
