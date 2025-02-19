@@ -7,6 +7,7 @@ import { StoreSetupWizard } from "@/components/StoreSetupWizard";
 import { Cart } from "@/components/Cart";
 import { Button } from "@/components/ui/button";
 import { v4 as uuidv4 } from 'uuid';
+import { supabase } from "@/integrations/supabase/client";
 
 // Function to clear all store data
 const clearStoreData = () => {
@@ -15,27 +16,37 @@ const clearStoreData = () => {
 };
 
 const Index = () => {
-  // Clear state and initialize store
-  useEffect(() => {
-    localStorage.clear();
-    localStorage.setItem('initStore', 'true');
-  }, []);
-  
   const [products, setProducts] = useState([]);
   const [template, setTemplate] = useState("minimal");
-  const [storeName, setStoreName] = useState(localStorage.getItem('storeName') || "");
+  const [storeName, setStoreName] = useState("");
   const [isSetupComplete, setIsSetupComplete] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchStoreData = async () => {
       try {
-        const response = await fetch('/api/store');
-        const storeData = await response.json();
-        if (storeData) {
-          setTemplate(storeData.template);
-          setProducts(storeData.products || []);
-          setStoreName(localStorage.getItem('storeName') || storeData.name || "My Store");
+        // Get store ID from URL if it exists
+        const storeId = window.location.pathname.split('/')[1];
+        if (!storeId) return;
+
+        const { data: store, error: storeError } = await supabase
+          .from('stores')
+          .select(`
+            *,
+            products (*)
+          `)
+          .eq('id', storeId)
+          .single();
+
+        if (storeError) {
+          console.error('Error fetching store:', storeError);
+          return;
+        }
+
+        if (store) {
+          setTemplate(store.template);
+          setProducts(store.products || []);
+          setStoreName(store.name);
           setIsSetupComplete(true);
         }
       } catch (error) {
@@ -45,8 +56,8 @@ const Index = () => {
     fetchStoreData();
   }, []);
 
-  const handleSetupComplete = (sheetUrl: string, selectedTemplate: string, whatsappNumber: string, storeName: string, initialProducts: any[]) => {
-    if (!whatsappNumber || !storeName) {
+  const handleSetupComplete = async (sheetUrl: string, selectedTemplate: string, whatsappNumber: string, name: string, initialProducts: any[]) => {
+    if (!whatsappNumber || !name) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -55,23 +66,64 @@ const Index = () => {
       return;
     }
 
-    // Save all store data
-    setProducts(initialProducts);
-    setTemplate(selectedTemplate);
-    localStorage.setItem('shopkeeperWhatsapp', whatsappNumber.replace(/[^0-9+]/g, ''));
-    localStorage.setItem('storeName', storeName);
-    localStorage.setItem('storeTemplate', selectedTemplate);
-    localStorage.setItem('storeProducts', JSON.stringify(initialProducts));
-    setIsSetupComplete(true);
+    try {
+      // Create new store in Supabase
+      const storeId = uuidv4();
+      const { error: storeError } = await supabase
+        .from('stores')
+        .insert({
+          id: storeId,
+          name,
+          template: selectedTemplate,
+          whatsapp: whatsappNumber.replace(/[^0-9+]/g, ''),
+          status: 'preview'
+        });
 
-    const storeId = uuidv4();
-    localStorage.setItem(`store_${storeId}_name`, storeName);
-    localStorage.setItem(`store_${storeId}_template`, selectedTemplate);
-    localStorage.setItem(`store_${storeId}_products`, JSON.stringify(initialProducts));
-    localStorage.setItem(`store_${storeId}_status`, 'preview');
-    
-    const previewUrl = `${window.location.origin}/${storeId}`;
-    window.location.href = previewUrl;
+      if (storeError) throw storeError;
+
+      // Insert products
+      const productsWithStoreId = initialProducts.map(product => ({
+        ...product,
+        store_id: storeId
+      }));
+
+      const { error: productsError } = await supabase
+        .from('products')
+        .insert(productsWithStoreId);
+
+      if (productsError) throw productsError;
+
+      // Save sheet connection if URL provided
+      if (sheetUrl) {
+        const { error: sheetError } = await supabase
+          .from('spreadsheet_connections')
+          .insert({
+            store_id: storeId,
+            spreadsheet_url: sheetUrl,
+            spreadsheet_type: 'google'
+          });
+
+        if (sheetError) throw sheetError;
+      }
+
+      // Update local state
+      setProducts(initialProducts);
+      setTemplate(selectedTemplate);
+      setStoreName(name);
+      setIsSetupComplete(true);
+
+      // Redirect to store preview
+      const previewUrl = `${window.location.origin}/${storeId}`;
+      window.location.href = previewUrl;
+
+    } catch (error) {
+      console.error('Error creating store:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create store. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (!isSetupComplete) {
