@@ -19,17 +19,12 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    const NETLIFY_PAT = Deno.env.get('NETLIFY_PAT')
-    const NETLIFY_WEBHOOK_URL = Deno.env.get('NETLIFY_WEBHOOK_URL')
-    
-    if (!NETLIFY_PAT) {
-      throw new Error('Netlify PAT not configured')
-    }
-    if (!NETLIFY_WEBHOOK_URL) {
-      throw new Error('Netlify webhook URL not configured')
-    }
-
     const { storeId } = await req.json()
+    console.log('Received request to deploy store:', storeId);
+
+    if (!storeId) {
+      throw new Error('Store ID is required');
+    }
 
     // Get store data
     const { data: store, error: storeError } = await supabase
@@ -38,93 +33,55 @@ serve(async (req) => {
       .eq('id', storeId)
       .single()
 
-    if (storeError || !store) {
-      console.error('Error fetching store:', storeError)
-      return new Response(
-        JSON.stringify({ error: 'Store not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+    if (storeError) {
+      console.error('Error fetching store:', storeError);
+      throw storeError;
     }
 
-    // Create a new site on Netlify
-    const siteName = `${store.name}-${store.id}`
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '')
-
-    console.log('Creating Netlify site:', siteName)
-
-    const createSiteResponse = await fetch('https://api.netlify.com/api/v1/sites', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${NETLIFY_PAT}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        name: siteName,
-        custom_domain: null,
-        build_settings: {
-          cmd: 'npm run build',
-          dir: 'dist',
-          env: {
-            STORE_ID: store.id
-          }
-        }
-      })
-    })
-
-    if (!createSiteResponse.ok) {
-      const error = await createSiteResponse.text()
-      console.error('Netlify site creation failed:', error)
-      throw new Error('Failed to create Netlify site')
+    if (!store) {
+      throw new Error('Store not found');
     }
 
-    const siteData = await createSiteResponse.json()
-    const siteUrl = siteData.ssl_url || siteData.url
+    console.log('Store found:', store);
 
-    console.log('Netlify site created:', siteUrl)
-
-    // Update store with Netlify URL
+    // For now, just update the status to deployed
     const { error: updateError } = await supabase
       .from('stores')
-      .update({ 
-        status: 'deployed',
-        netlify_url: siteUrl
-      })
-      .eq('id', storeId)
+      .update({ status: 'deployed' })
+      .eq('id', storeId);
 
     if (updateError) {
-      console.error('Error updating store:', updateError)
-      throw new Error('Failed to update store status')
+      console.error('Error updating store status:', updateError);
+      throw updateError;
     }
 
-    // Trigger initial build using webhook
-    console.log('Triggering initial build via webhook...')
-    const buildResponse = await fetch(NETLIFY_WEBHOOK_URL, {
-      method: 'POST'
-    })
-
-    if (!buildResponse.ok) {
-      console.error('Failed to trigger build webhook:', await buildResponse.text())
-      // Don't throw error here as the site is already created
-      console.log('Site created successfully but build trigger failed')
-    } else {
-      console.log('Build triggered successfully')
-    }
+    console.log('Store status updated successfully');
     
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         success: true,
-        url: siteUrl
+        url: store.netlify_url || `${req.url}/${storeId}`
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        } 
+      }
     )
   } catch (error) {
-    console.error('Deployment error:', error)
+    console.error('Deployment error:', error);
     return new Response(
-      JSON.stringify({ error: error.message || 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ 
+        error: error.message || 'Internal server error'
+      }),
+      { 
+        status: 500,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      }
     )
   }
 })

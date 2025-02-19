@@ -66,11 +66,15 @@ const Index = () => {
 
   const handleDeploy = async (storeId: string) => {
     try {
+      console.log('Attempting to deploy store:', storeId);
       const { data, error } = await supabase.functions.invoke('deploy-store', {
         body: { storeId }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Function invocation error:', error);
+        throw error;
+      }
 
       console.log('Deployment response:', data);
       toast({
@@ -206,6 +210,13 @@ const Index = () => {
           Reset Store
         </Button>
         <h1 className="text-2xl font-bold text-center mb-8">Welcome to Store Builder</h1>
+        {/* Added test button */}
+        <Button
+          onClick={() => handleDeploy('test-store-id')}
+          className="mb-8 mx-auto block"
+        >
+          Test Deploy Function
+        </Button>
         <p className="text-center mb-8 text-muted-foreground">Let's set up your store in 3 easy steps:</p>
         <StoreSetupWizard onComplete={handleSetupComplete} />
       </div>
@@ -219,6 +230,15 @@ const Index = () => {
         template={template}
         isPreview={true}
       />
+      {/* Added deploy button in preview mode */}
+      <div className="container mx-auto px-4 py-4">
+        <Button
+          onClick={() => handleDeploy(window.location.pathname.split('/')[1])}
+          className="ml-auto block"
+        >
+          Deploy Store
+        </Button>
+      </div>
       <main className="container mx-auto px-4 py-8">
         <div className="fixed top-4 right-4 z-50">
           <Cart />
