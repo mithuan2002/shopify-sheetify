@@ -27,7 +27,12 @@ const Index = () => {
       try {
         // Get store ID from URL if it exists
         const storeId = window.location.pathname.split('/')[1];
-        if (!storeId) return;
+        console.log('Attempting to fetch store with ID:', storeId);
+        
+        if (!storeId) {
+          console.log('No store ID found in URL');
+          return;
+        }
 
         const { data: store, error: storeError } = await supabase
           .from('stores')
@@ -36,7 +41,7 @@ const Index = () => {
             products (*)
           `)
           .eq('id', storeId)
-          .single();
+          .maybeSingle();
 
         if (storeError) {
           console.error('Error fetching store:', storeError);
@@ -44,10 +49,13 @@ const Index = () => {
         }
 
         if (store) {
+          console.log('Store data fetched successfully:', store);
           setTemplate(store.template);
           setProducts(store.products || []);
           setStoreName(store.name);
           setIsSetupComplete(true);
+        } else {
+          console.log('No store found with ID:', storeId);
         }
       } catch (error) {
         console.error('Failed to fetch store data:', error);
@@ -57,6 +65,8 @@ const Index = () => {
   }, []);
 
   const handleSetupComplete = async (sheetUrl: string, selectedTemplate: string, whatsappNumber: string, name: string, initialProducts: any[]) => {
+    console.log('Starting store setup with:', { sheetUrl, selectedTemplate, whatsappNumber, name, productsCount: initialProducts.length });
+
     if (!whatsappNumber || !name) {
       toast({
         title: "Error",
@@ -69,7 +79,9 @@ const Index = () => {
     try {
       // Create new store in Supabase
       const storeId = uuidv4();
-      const { error: storeError } = await supabase
+      console.log('Generated store ID:', storeId);
+
+      const { data: storeData, error: storeError } = await supabase
         .from('stores')
         .insert({
           id: storeId,
@@ -77,21 +89,38 @@ const Index = () => {
           template: selectedTemplate,
           whatsapp: whatsappNumber.replace(/[^0-9+]/g, ''),
           status: 'preview'
-        });
+        })
+        .select()
+        .single();
 
-      if (storeError) throw storeError;
+      if (storeError) {
+        console.error('Error creating store:', storeError);
+        throw storeError;
+      }
+
+      console.log('Store created successfully:', storeData);
 
       // Insert products
       const productsWithStoreId = initialProducts.map(product => ({
-        ...product,
-        store_id: storeId
+        id: uuidv4(), // Generate UUID for each product
+        store_id: storeId,
+        name: product.name,
+        price: product.price,
+        description: product.description,
+        image: product.image
       }));
 
-      const { error: productsError } = await supabase
+      const { data: productsData, error: productsError } = await supabase
         .from('products')
-        .insert(productsWithStoreId);
+        .insert(productsWithStoreId)
+        .select();
 
-      if (productsError) throw productsError;
+      if (productsError) {
+        console.error('Error creating products:', productsError);
+        throw productsError;
+      }
+
+      console.log('Products created successfully:', productsData);
 
       // Save sheet connection if URL provided
       if (sheetUrl) {
@@ -101,19 +130,32 @@ const Index = () => {
             store_id: storeId,
             spreadsheet_url: sheetUrl,
             spreadsheet_type: 'google'
-          });
+          })
+          .select()
+          .single();
 
-        if (sheetError) throw sheetError;
+        if (sheetError) {
+          console.error('Error creating spreadsheet connection:', sheetError);
+          throw sheetError;
+        }
+
+        console.log('Spreadsheet connection created successfully');
       }
 
       // Update local state
-      setProducts(initialProducts);
+      setProducts(productsWithStoreId);
       setTemplate(selectedTemplate);
       setStoreName(name);
       setIsSetupComplete(true);
 
+      toast({
+        title: "Success!",
+        description: "Store created successfully!",
+      });
+
       // Redirect to store preview
       const previewUrl = `${window.location.origin}/${storeId}`;
+      console.log('Redirecting to:', previewUrl);
       window.location.href = previewUrl;
 
     } catch (error) {
