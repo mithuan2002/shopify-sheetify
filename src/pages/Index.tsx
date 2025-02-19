@@ -20,6 +20,7 @@ const Index = () => {
   const [template, setTemplate] = useState("minimal");
   const [storeName, setStoreName] = useState("");
   const [isSetupComplete, setIsSetupComplete] = useState(false);
+  const [currentStoreId, setCurrentStoreId] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -53,18 +54,33 @@ const Index = () => {
           setTemplate(store.template);
           setProducts(store.products || []);
           setStoreName(store.name);
+          setCurrentStoreId(store.id);
           setIsSetupComplete(true);
         } else {
           console.log('No store found with ID:', storeId);
+          toast({
+            title: "Error",
+            description: "Store not found",
+            variant: "destructive",
+          });
         }
       } catch (error) {
         console.error('Failed to fetch store data:', error);
       }
     };
     fetchStoreData();
-  }, []);
+  }, [toast]);
 
   const handleDeploy = async (storeId: string) => {
+    if (!storeId) {
+      toast({
+        title: "Error",
+        description: "No store ID available to deploy",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       console.log('Attempting to deploy store:', storeId);
       const { data, error } = await supabase.functions.invoke('deploy-store', {
@@ -73,7 +89,12 @@ const Index = () => {
 
       if (error) {
         console.error('Function invocation error:', error);
-        throw error;
+        toast({
+          title: "Error",
+          description: error.message || "Failed to deploy store",
+          variant: "destructive",
+        });
+        return;
       }
 
       console.log('Deployment response:', data);
@@ -82,7 +103,7 @@ const Index = () => {
         description: "Store deployed successfully!",
       });
 
-      if (data.url) {
+      if (data?.url) {
         window.location.href = data.url;
       }
     } catch (error) {
@@ -133,7 +154,7 @@ const Index = () => {
 
       // Insert products
       const productsWithStoreId = initialProducts.map(product => ({
-        id: uuidv4(), // Generate UUID for each product
+        id: uuidv4(),
         store_id: storeId,
         name: product.name,
         price: product.price,
@@ -177,6 +198,7 @@ const Index = () => {
       setProducts(productsWithStoreId);
       setTemplate(selectedTemplate);
       setStoreName(name);
+      setCurrentStoreId(storeId);
       setIsSetupComplete(true);
 
       toast({
@@ -210,13 +232,6 @@ const Index = () => {
           Reset Store
         </Button>
         <h1 className="text-2xl font-bold text-center mb-8">Welcome to Store Builder</h1>
-        {/* Added test button */}
-        <Button
-          onClick={() => handleDeploy('test-store-id')}
-          className="mb-8 mx-auto block"
-        >
-          Test Deploy Function
-        </Button>
         <p className="text-center mb-8 text-muted-foreground">Let's set up your store in 3 easy steps:</p>
         <StoreSetupWizard onComplete={handleSetupComplete} />
       </div>
@@ -233,8 +248,9 @@ const Index = () => {
       {/* Added deploy button in preview mode */}
       <div className="container mx-auto px-4 py-4">
         <Button
-          onClick={() => handleDeploy(window.location.pathname.split('/')[1])}
+          onClick={() => handleDeploy(currentStoreId!)}
           className="ml-auto block"
+          disabled={!currentStoreId}
         >
           Deploy Store
         </Button>
