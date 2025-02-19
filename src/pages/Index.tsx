@@ -64,6 +64,33 @@ const Index = () => {
     fetchStoreData();
   }, []);
 
+  const handleDeploy = async (storeId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('deploy-store', {
+        body: { storeId }
+      });
+
+      if (error) throw error;
+
+      console.log('Deployment response:', data);
+      toast({
+        title: "Success!",
+        description: "Store deployed successfully!",
+      });
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error('Deployment error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to deploy store. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleSetupComplete = async (sheetUrl: string, selectedTemplate: string, whatsappNumber: string, name: string, initialProducts: any[]) => {
     console.log('Starting store setup with:', { sheetUrl, selectedTemplate, whatsappNumber, name, productsCount: initialProducts.length });
 
