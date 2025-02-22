@@ -82,9 +82,10 @@ const Index = () => {
     }
 
     try {
-      console.log('Attempting to deploy store:', storeId);
+      console.log('Attempting to deploy store with ID:', storeId);
+      
       const { data, error } = await supabase.functions.invoke('deploy-store', {
-        body: { storeId }
+        body: { storeId: storeId }
       });
 
       if (error) {

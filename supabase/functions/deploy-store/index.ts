@@ -14,17 +14,31 @@ serve(async (req) => {
   }
 
   try {
+    // Validate that the request has a body
+    if (!req.body) {
+      throw new Error('Request body is required');
+    }
+
+    let payload;
+    try {
+      payload = await req.json();
+      console.log('Received payload:', payload);
+    } catch (e) {
+      console.error('Error parsing JSON:', e);
+      throw new Error('Invalid JSON payload');
+    }
+
+    if (!payload.storeId) {
+      throw new Error('storeId is required in the payload');
+    }
+
+    const { storeId } = payload;
+    console.log('Deploying store with ID:', storeId);
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
-
-    const { storeId } = await req.json()
-    console.log('Received request to deploy store:', storeId);
-
-    if (!storeId) {
-      throw new Error('Store ID is required');
-    }
 
     // Get store data
     const { data: store, error: storeError } = await supabase
@@ -76,7 +90,7 @@ serve(async (req) => {
         error: error.message || 'Internal server error'
       }),
       { 
-        status: 500,
+        status: error.message === 'Invalid JSON payload' ? 400 : 500,
         headers: {
           ...corsHeaders,
           'Content-Type': 'application/json'
