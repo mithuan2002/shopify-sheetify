@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { StoreHeader } from "@/components/StoreHeader";
@@ -24,7 +25,18 @@ const Index = () => {
   useEffect(() => {
     const fetchStoreData = async () => {
       try {
-        const storeId = window.location.pathname.split('/')[1];
+        // Get the path without the leading slash
+        const path = window.location.pathname.slice(1);
+        
+        // If we're on the root path, don't try to fetch a store
+        if (!path) {
+          console.log('On root path, showing setup wizard');
+          setIsSetupComplete(false);
+          return;
+        }
+
+        // Extract store ID from the path
+        const storeId = path.split('/')[0];
         console.log('Attempting to fetch store with ID:', storeId);
         
         if (!storeId) {
@@ -43,6 +55,11 @@ const Index = () => {
 
         if (storeError) {
           console.error('Error fetching store:', storeError);
+          toast({
+            title: "Error",
+            description: "Failed to fetch store data",
+            variant: "destructive",
+          });
           return;
         }
 
@@ -56,15 +73,25 @@ const Index = () => {
         } else {
           console.log('No store found with ID:', storeId);
           toast({
-            title: "Error",
-            description: "Store not found",
+            title: "Store Not Found",
+            description: "The requested store could not be found",
             variant: "destructive",
           });
+          // Redirect to home after a brief delay
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 2000);
         }
       } catch (error) {
         console.error('Failed to fetch store data:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load store data",
+          variant: "destructive",
+        });
       }
     };
+
     fetchStoreData();
   }, [toast]);
 
