@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { StoreHeader } from "@/components/StoreHeader";
@@ -9,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from "@/integrations/supabase/client";
 
-// Function to clear all store data
 const clearStoreData = () => {
   localStorage.clear();
   window.location.href = '/';
@@ -26,7 +24,6 @@ const Index = () => {
   useEffect(() => {
     const fetchStoreData = async () => {
       try {
-        // Get store ID from URL if it exists
         const storeId = window.location.pathname.split('/')[1];
         console.log('Attempting to fetch store with ID:', storeId);
         
@@ -130,7 +127,6 @@ const Index = () => {
     }
 
     try {
-      // Create new store in Supabase
       const storeId = uuidv4();
       console.log('Generated store ID:', storeId);
 
@@ -153,7 +149,6 @@ const Index = () => {
 
       console.log('Store created successfully:', storeData);
 
-      // Insert products
       const productsWithStoreId = initialProducts.map(product => ({
         id: uuidv4(),
         store_id: storeId,
@@ -175,7 +170,6 @@ const Index = () => {
 
       console.log('Products created successfully:', productsData);
 
-      // Save sheet connection if URL provided
       if (sheetUrl) {
         const { error: sheetError } = await supabase
           .from('spreadsheet_connections')
@@ -184,8 +178,7 @@ const Index = () => {
             spreadsheet_url: sheetUrl,
             spreadsheet_type: 'google'
           })
-          .select()
-          .single();
+          .select();
 
         if (sheetError) {
           console.error('Error creating spreadsheet connection:', sheetError);
@@ -195,7 +188,6 @@ const Index = () => {
         console.log('Spreadsheet connection created successfully');
       }
 
-      // Update local state
       setProducts(productsWithStoreId);
       setTemplate(selectedTemplate);
       setStoreName(name);
@@ -207,7 +199,6 @@ const Index = () => {
         description: "Store created successfully!",
       });
 
-      // Redirect to store preview
       const previewUrl = `${window.location.origin}/${storeId}`;
       console.log('Redirecting to:', previewUrl);
       window.location.href = previewUrl;
@@ -246,7 +237,6 @@ const Index = () => {
         template={template}
         isPreview={true}
       />
-      {/* Added deploy button in preview mode */}
       <div className="container mx-auto px-4 py-4">
         <Button
           onClick={() => handleDeploy(currentStoreId!)}

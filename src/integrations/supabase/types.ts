@@ -54,9 +54,11 @@ export type Database = {
         Row: {
           created_at: string | null
           id: number
-          name: string
           netlify_url: string | null
+          spreadsheet_type: string | null
+          spreadsheet_url: string | null
           status: string | null
+          store_id: string | null
           template: string | null
           updated_at: string | null
           whatsapp: string | null
@@ -64,9 +66,11 @@ export type Database = {
         Insert: {
           created_at?: string | null
           id?: never
-          name: string
           netlify_url?: string | null
+          spreadsheet_type?: string | null
+          spreadsheet_url?: string | null
           status?: string | null
+          store_id?: string | null
           template?: string | null
           updated_at?: string | null
           whatsapp?: string | null
@@ -74,14 +78,24 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: never
-          name?: string
           netlify_url?: string | null
+          spreadsheet_type?: string | null
+          spreadsheet_url?: string | null
           status?: string | null
+          store_id?: string | null
           template?: string | null
           updated_at?: string | null
           whatsapp?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "spreadsheet_connections_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       stores: {
         Row: {
