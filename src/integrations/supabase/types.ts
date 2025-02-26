@@ -104,6 +104,7 @@ export type Database = {
           name: string
           netlify_url: string | null
           status: string | null
+          store_id: string | null
           template: string
           updated_at: string | null
           whatsapp: string | null
@@ -114,6 +115,7 @@ export type Database = {
           name: string
           netlify_url?: string | null
           status?: string | null
+          store_id?: string | null
           template?: string
           updated_at?: string | null
           whatsapp?: string | null
@@ -124,6 +126,7 @@ export type Database = {
           name?: string
           netlify_url?: string | null
           status?: string | null
+          store_id?: string | null
           template?: string
           updated_at?: string | null
           whatsapp?: string | null
