@@ -17,7 +17,7 @@ export const useStoreActions = () => {
     }
 
     try {
-      console.log('Attempting to deploy store with ID:', storeId);
+      console.log('Starting deployment process for store:', storeId);
       
       // First verify the store exists
       const { data: store, error: storeError } = await supabase
@@ -27,6 +27,7 @@ export const useStoreActions = () => {
         .maybeSingle();
 
       if (storeError) {
+        console.error('Store verification error:', storeError);
         throw new Error(`Failed to verify store: ${storeError.message}`);
       }
 
@@ -34,11 +35,19 @@ export const useStoreActions = () => {
         throw new Error('Store not found');
       }
 
-      console.log('Store found, invoking deploy function...');
+      console.log('Store verified, invoking deploy function...');
+      
+      // Log the function URL being used
+      console.log('Function URL:', `${supabase.functions.url}/deploy-store`);
       
       const { data, error } = await supabase.functions.invoke('deploy-store', {
-        body: { storeId }
+        body: { storeId },
+        headers: {
+          'Content-Type': 'application/json',
+        }
       });
+
+      console.log('Function response:', { data, error });
 
       if (error) {
         console.error('Function invocation error:', error);
@@ -50,13 +59,14 @@ export const useStoreActions = () => {
         return;
       }
 
-      console.log('Deployment response:', data);
+      console.log('Deployment successful:', data);
       toast({
         title: "Success!",
         description: "Store deployed successfully!",
       });
 
       if (data?.url) {
+        console.log('Redirecting to:', data.url);
         window.location.href = data.url;
       }
     } catch (error: any) {
