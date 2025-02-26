@@ -18,44 +18,60 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  console.log('Deploy store function invoked');
+  console.log('Request method:', req.method);
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log('Handling CORS preflight request');
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
     // Validate that the request has a body
     if (!req.body) {
+      console.error('No request body provided');
       throw new Error('Request body is required');
     }
 
     let payload;
     try {
-      payload = await req.json();
-      console.log('Received payload:', payload);
+      const text = await req.text();
+      console.log('Raw request body:', text);
+      payload = JSON.parse(text);
+      console.log('Parsed payload:', payload);
     } catch (e) {
       console.error('Error parsing JSON:', e);
       throw new Error('Invalid JSON payload');
     }
 
     if (!payload.storeId) {
+      console.error('No storeId in payload');
       throw new Error('storeId is required in the payload');
     }
 
     const { storeId } = payload;
     console.log('Deploying store with ID:', storeId);
 
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('Missing Supabase environment variables');
+      throw new Error('Server configuration error');
+    }
+
+    console.log('Initializing Supabase client with URL:', supabaseUrl);
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Get store data
+    console.log('Fetching store data...');
     const { data: store, error: storeError } = await supabase
       .from('stores')
       .select('*')
       .eq('id', storeId)
-      .single()
+      .single();
 
     if (storeError) {
       console.error('Error fetching store:', storeError);
@@ -63,12 +79,14 @@ serve(async (req) => {
     }
 
     if (!store) {
+      console.error('Store not found with ID:', storeId);
       throw new Error('Store not found');
     }
 
     console.log('Store found:', store);
 
-    // For now, just update the status to deployed
+    // Update store status
+    console.log('Updating store status to deployed...');
     const { error: updateError } = await supabase
       .from('stores')
       .update({ status: 'deployed' })
@@ -81,18 +99,21 @@ serve(async (req) => {
 
     console.log('Store status updated successfully');
     
+    const responseData = {
+      success: true,
+      url: store.netlify_url || `${req.url}/${storeId}`
+    };
+    console.log('Sending response:', responseData);
+    
     return new Response(
-      JSON.stringify({
-        success: true,
-        url: store.netlify_url || `${req.url}/${storeId}`
-      }),
+      JSON.stringify(responseData),
       { 
         headers: { 
           ...corsHeaders,
           'Content-Type': 'application/json'
         } 
       }
-    )
+    );
   } catch (error) {
     console.error('Deployment error:', error);
     return new Response(
@@ -106,6 +127,6 @@ serve(async (req) => {
           'Content-Type': 'application/json'
         }
       }
-    )
+    );
   }
-})
+});

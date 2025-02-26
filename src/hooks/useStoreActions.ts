@@ -19,8 +19,25 @@ export const useStoreActions = () => {
     try {
       console.log('Attempting to deploy store with ID:', storeId);
       
+      // First verify the store exists
+      const { data: store, error: storeError } = await supabase
+        .from('stores')
+        .select('id, status')
+        .eq('id', storeId)
+        .maybeSingle();
+
+      if (storeError) {
+        throw new Error(`Failed to verify store: ${storeError.message}`);
+      }
+
+      if (!store) {
+        throw new Error('Store not found');
+      }
+
+      console.log('Store found, invoking deploy function...');
+      
       const { data, error } = await supabase.functions.invoke('deploy-store', {
-        body: { storeId: storeId }
+        body: { storeId }
       });
 
       if (error) {
@@ -42,11 +59,11 @@ export const useStoreActions = () => {
       if (data?.url) {
         window.location.href = data.url;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Deployment error:', error);
       toast({
         title: "Error",
-        description: "Failed to deploy store. Please try again.",
+        description: error.message || "Failed to deploy store. Please try again.",
         variant: "destructive",
       });
     }
