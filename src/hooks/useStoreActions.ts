@@ -22,7 +22,7 @@ export const useStoreActions = () => {
       // First verify the store exists
       const { data: store, error: storeError } = await supabase
         .from('stores')
-        .select('id, status')
+        .select('id')
         .eq('id', storeId)
         .maybeSingle();
 
@@ -32,25 +32,24 @@ export const useStoreActions = () => {
       }
 
       if (!store) {
+        console.error('Store not found with ID:', storeId);
         throw new Error('Store not found');
       }
 
       console.log('Store verified, updating status...');
       
-      // Instead of calling an Edge Function, just update the store status directly
-      const { data: updatedStore, error: updateError } = await supabase
+      // Update the store status to deployed
+      const { error: updateError } = await supabase
         .from('stores')
         .update({ status: 'deployed' })
-        .eq('id', storeId)
-        .select()
-        .single();
+        .eq('id', storeId);
       
       if (updateError) {
         console.error('Store update error:', updateError);
         throw new Error(`Failed to update store: ${updateError.message}`);
       }
       
-      console.log('Store deployed successfully:', updatedStore);
+      console.log('Store deployed successfully');
       
       toast({
         title: "Success!",
@@ -65,7 +64,7 @@ export const useStoreActions = () => {
     } catch (error: any) {
       console.error('Deployment error:', error);
       toast({
-        title: "Error",
+        title: "Deployment Failed",
         description: error.message || "Failed to deploy store. Please try again.",
         variant: "destructive",
       });
@@ -119,40 +118,40 @@ export const useStoreActions = () => {
 
       console.log('Store created successfully:', storeData);
 
-      // Process products in chunks to avoid request size limits
-      const CHUNK_SIZE = 50;
-      const productChunks = [];
-      
-      for (let i = 0; i < initialProducts.length; i += CHUNK_SIZE) {
-        productChunks.push(initialProducts.slice(i, i + CHUNK_SIZE));
-      }
-      
-      console.log(`Processing ${productChunks.length} product chunks`);
-      
-      for (let i = 0; i < productChunks.length; i++) {
-        const chunk = productChunks[i];
-        console.log(`Processing chunk ${i+1}/${productChunks.length} with ${chunk.length} products`);
+      // Process products
+      if (initialProducts.length > 0) {
+        console.log(`Processing ${initialProducts.length} products`);
         
-        const productsWithStoreId = chunk.map(product => ({
-          id: uuidv4(),
-          store_id: storeId,
-          name: product.name,
-          price: product.price,
-          description: product.description || '',
-          image: product.image || ''
-        }));
+        const CHUNK_SIZE = 25; // Smaller chunks for more reliable processing
+        for (let i = 0; i < initialProducts.length; i += CHUNK_SIZE) {
+          const chunk = initialProducts.slice(i, i + CHUNK_SIZE);
+          console.log(`Processing chunk ${i/CHUNK_SIZE + 1} with ${chunk.length} products`);
+          
+          const productsWithStoreId = chunk.map(product => ({
+            id: uuidv4(),
+            store_id: storeId,
+            name: product.name || 'Untitled Product',
+            price: parseFloat(product.price) || 0,
+            description: product.description || '',
+            image: product.image || ''
+          }));
 
-        const { data: productsData, error: productsError } = await supabase
-          .from('products')
-          .insert(productsWithStoreId)
-          .select();
+          const { error: productsError } = await supabase
+            .from('products')
+            .insert(productsWithStoreId);
 
-        if (productsError) {
-          console.error(`Error creating products chunk ${i+1}:`, productsError);
-          throw productsError;
+          if (productsError) {
+            console.error(`Error creating products chunk:`, productsError);
+            toast({
+              title: "Warning",
+              description: "Some products may not have been added correctly",
+              variant: "destructive",
+            });
+            // Continue with next chunk instead of throwing error
+          } else {
+            console.log(`Products chunk created successfully`);
+          }
         }
-
-        console.log(`Products chunk ${i+1} created successfully:`, productsData);
       }
 
       if (sheetUrl) {
@@ -166,10 +165,15 @@ export const useStoreActions = () => {
 
         if (sheetError) {
           console.error('Error creating spreadsheet connection:', sheetError);
-          throw sheetError;
+          // Non-critical error, just log warning
+          toast({
+            title: "Warning",
+            description: "Spreadsheet connection could not be saved",
+            variant: "destructive",
+          });
+        } else {
+          console.log('Spreadsheet connection created successfully');
         }
-
-        console.log('Spreadsheet connection created successfully');
       }
 
       toast({
@@ -182,11 +186,11 @@ export const useStoreActions = () => {
       console.log('Redirecting to:', previewUrl);
       window.location.href = previewUrl;
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating store:', error);
       toast({
         title: "Error",
-        description: "Failed to create store. Please try again.",
+        description: error.message || "Failed to create store. Please try again.",
         variant: "destructive",
       });
     }

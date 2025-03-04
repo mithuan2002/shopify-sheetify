@@ -1,8 +1,10 @@
 
+import { useState } from "react";
 import { StoreHeader } from "@/components/StoreHeader";
 import { Cart } from "@/components/Cart";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
+import { Loader2 } from "lucide-react";
 
 interface StoreViewProps {
   storeName: string;
@@ -19,6 +21,17 @@ export const StoreView = ({
   currentStoreId,
   onDeploy,
 }: StoreViewProps) => {
+  const [isDeploying, setIsDeploying] = useState(false);
+
+  const handleDeploy = async () => {
+    setIsDeploying(true);
+    try {
+      await onDeploy(currentStoreId);
+    } finally {
+      setIsDeploying(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <StoreHeader 
@@ -26,13 +39,20 @@ export const StoreView = ({
         template={template}
         isPreview={true}
       />
-      <div className="container mx-auto px-4 py-4">
+      <div className="container mx-auto px-4 py-4 flex justify-end">
         <Button
-          onClick={() => onDeploy(currentStoreId)}
+          onClick={handleDeploy}
+          disabled={!currentStoreId || isDeploying}
           className="ml-auto block"
-          disabled={!currentStoreId}
         >
-          Deploy Store
+          {isDeploying ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Deploying...
+            </>
+          ) : (
+            "Deploy Store"
+          )}
         </Button>
       </div>
       <main className="container mx-auto px-4 py-8">
@@ -46,8 +66,8 @@ export const StoreView = ({
               id={product.id}
               name={product.name}
               price={product.price}
-              description={product.description}
-              imageUrl={product.image}
+              description={product.description || ''}
+              imageUrl={product.image || ''}
             />
           ))}
         </div>

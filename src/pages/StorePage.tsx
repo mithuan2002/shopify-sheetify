@@ -1,54 +1,97 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ProductCard } from "@/components/ProductCard";
 import { StoreHeader } from "@/components/StoreHeader";
 import { Cart } from "@/components/Cart";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const StorePage = () => {
   const { storeId } = useParams<{ storeId: string }>();
   const navigate = useNavigate();
   const [storeData, setStoreData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
-    const storeProducts = localStorage.getItem(`store_${storeId}_products`);
-    const storeName = localStorage.getItem(`store_${storeId}_name`);
-    const storeTemplate = localStorage.getItem(`store_${storeId}_template`);
+    const fetchStoreData = async () => {
+      if (!storeId) {
+        setError('Store ID is missing');
+        setIsLoading(false);
+        return;
+      }
 
-    if (!storeProducts || !storeName || !storeTemplate) {
-      setError('Store not found');
-      return;
-    }
+      try {
+        console.log('Fetching store data for ID:', storeId);
+        
+        const { data: store, error: storeError } = await supabase
+          .from('stores')
+          .select(`
+            *,
+            products (*)
+          `)
+          .eq('id', storeId)
+          .maybeSingle();
 
-    setStoreData({
-      name: storeName,
-      template: storeTemplate,
-      products: JSON.parse(storeProducts)
-    });
+        if (storeError) {
+          console.error('Error fetching store:', storeError);
+          setError('Failed to fetch store data');
+          toast({
+            title: "Error",
+            description: "Failed to fetch store data",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
 
-    const handleBackButton = () => {
-      const currentStep = localStorage.getItem('currentStep');
-      if (currentStep) {
-        navigate('/', { state: { step: parseInt(currentStep) } });
+        if (!store) {
+          console.log('No store found with ID:', storeId);
+          setError('Store not found');
+          toast({
+            title: "Store Not Found",
+            description: "The requested store could not be found",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        console.log('Store data fetched successfully:', store);
+        setStoreData({
+          name: store.name,
+          template: store.template,
+          products: store.products || []
+        });
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Failed to fetch store data:', error);
+        setError('An unexpected error occurred');
+        toast({
+          title: "Error",
+          description: "Failed to load store data",
+          variant: "destructive",
+        });
+        setIsLoading(false);
       }
     };
 
-    window.addEventListener('popstate', handleBackButton);
-    return () => {
-      window.removeEventListener('popstate', handleBackButton);
-    };
-  }, [storeId, navigate]);
+    fetchStoreData();
+  }, [storeId, toast, navigate]);
 
-  if (error) return (
+  if (isLoading) return (
     <div className="min-h-screen flex items-center justify-center">
-      <p className="text-lg text-gray-600">{error}</p>
+      <p className="text-lg text-gray-600">Loading store...</p>
     </div>
   );
 
-  if (!storeData) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <p className="text-lg text-gray-600">Loading...</p>
+  if (error) return (
+    <div className="min-h-screen flex items-center justify-center flex-col gap-4">
+      <p className="text-lg text-gray-600">{error}</p>
+      <Button onClick={() => navigate('/')}>Go Back to Home</Button>
     </div>
   );
 
@@ -57,16 +100,8 @@ const StorePage = () => {
       <StoreHeader 
         storeName={storeData.name}
         template={storeData.template}
-        isPreview={true}
+        isPreview={false}
       />
-      <div className="container mx-auto px-4 mt-4 flex justify-end">
-        <Button 
-          className="bg-black text-white hover:bg-gray-800 font-semibold px-6"
-          onClick={() => window.location.href = '/deploy'}
-        >
-          Make Store Public
-        </Button>
-      </div>
       <main className="container mx-auto px-4 py-8">
         <div className="fixed top-4 right-20 z-50">
           <Cart />
@@ -78,8 +113,8 @@ const StorePage = () => {
               id={product.id}
               name={product.name}
               price={product.price}
-              description={product.description}
-              imageUrl={product.image}
+              description={product.description || ''}
+              imageUrl={product.image || ''}
             />
           ))}
         </div>

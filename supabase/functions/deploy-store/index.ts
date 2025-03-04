@@ -54,6 +54,25 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
     console.log('Supabase client initialized');
 
+    // Verify store exists first
+    const { data: store, error: checkError } = await supabase
+      .from('stores')
+      .select('id')
+      .eq('id', storeId)
+      .maybeSingle();
+      
+    if (checkError) {
+      console.error('Check error:', checkError);
+      throw new Error(`Store verification failed: ${checkError.message}`);
+    }
+    
+    if (!store) {
+      console.error('Store not found with ID:', storeId);
+      throw new Error('Store not found');
+    }
+
+    console.log('Store exists, updating status...');
+
     // Update store status
     const { error: updateError } = await supabase
       .from('stores')
@@ -62,7 +81,7 @@ serve(async (req) => {
 
     if (updateError) {
       console.error('Update error:', updateError);
-      throw updateError;
+      throw new Error(`Failed to update store: ${updateError.message}`);
     }
 
     console.log('Store status updated to deployed');
@@ -87,7 +106,10 @@ serve(async (req) => {
   } catch (error) {
     console.error('Function error:', error);
     return new Response(
-      JSON.stringify({ error: error.message || 'Internal server error' }),
+      JSON.stringify({ 
+        error: error.message || 'Internal server error',
+        success: false
+      }),
       { 
         status: 500,
         headers: {

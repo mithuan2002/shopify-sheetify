@@ -9,6 +9,7 @@ export const useStoreData = () => {
   const [storeName, setStoreName] = useState("");
   const [isSetupComplete, setIsSetupComplete] = useState(false);
   const [currentStoreId, setCurrentStoreId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -19,6 +20,7 @@ export const useStoreData = () => {
         if (!path) {
           console.log('On root path, showing setup wizard');
           setIsSetupComplete(false);
+          setIsLoading(false);
           return;
         }
 
@@ -27,6 +29,7 @@ export const useStoreData = () => {
         
         if (!storeId) {
           console.log('No store ID found in URL');
+          setIsLoading(false);
           return;
         }
 
@@ -46,12 +49,13 @@ export const useStoreData = () => {
             description: "Failed to fetch store data",
             variant: "destructive",
           });
+          setIsLoading(false);
           return;
         }
 
         if (store) {
           console.log('Store data fetched successfully:', store);
-          setTemplate(store.template);
+          setTemplate(store.template || 'minimal');
           setProducts(store.products || []);
           setStoreName(store.name);
           setCurrentStoreId(store.id);
@@ -63,10 +67,16 @@ export const useStoreData = () => {
             description: "The requested store could not be found",
             variant: "destructive",
           });
-          setTimeout(() => {
-            window.location.href = '/';
-          }, 2000);
+          
+          // Only redirect if we're not on the setup page
+          if (window.location.pathname !== '/') {
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 2000);
+          }
         }
+
+        setIsLoading(false);
       } catch (error) {
         console.error('Failed to fetch store data:', error);
         toast({
@@ -74,6 +84,7 @@ export const useStoreData = () => {
           description: "Failed to load store data",
           variant: "destructive",
         });
+        setIsLoading(false);
       }
     };
 
@@ -91,5 +102,6 @@ export const useStoreData = () => {
     setIsSetupComplete,
     currentStoreId,
     setCurrentStoreId,
+    isLoading,
   };
 };
