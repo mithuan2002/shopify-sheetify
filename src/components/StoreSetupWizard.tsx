@@ -1,9 +1,11 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
 import { fetchProductsFromSheet } from "@/utils/googleSheets";
+import { Loader2 } from "lucide-react";
 
 interface StoreSetupWizardProps {
   onComplete: (sheetUrl: string, template: string, whatsappNumber: string, storeName: string, products: any[]) => void;
@@ -13,7 +15,8 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
   const [sheetUrl, setSheetUrl] = useState("");
   const [template, setTemplate] = useState("minimal");
   const [whatsappNumber, setWhatsappNumber] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingSheet, setIsLoadingSheet] = useState(false);
+  const [isCreatingStore, setIsCreatingStore] = useState(false);
   const [products, setProducts] = useState([]);
   const [storeName, setStoreName] = useState("Your Beautiful Store");
   const { toast } = useToast();
@@ -28,7 +31,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
       return;
     }
 
-    setIsLoading(true);
+    setIsLoadingSheet(true);
     try {
       const fetchedProducts = await fetchProductsFromSheet(sheetUrl);
       setProducts(fetchedProducts);
@@ -36,14 +39,15 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
         title: "Success!",
         description: "Successfully connected to your Google Sheet.",
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Error fetching sheet:", error);
       toast({
         title: "Error",
-        description: "Make sure your Google Sheet is publicly accessible and contains the correct columns: Name, Price, Description, Image URL",
+        description: error.message || "Make sure your Google Sheet is publicly accessible and contains the correct columns: Name, Price, Description, Image URL",
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsLoadingSheet(false);
     }
   };
 
@@ -63,7 +67,7 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
     }
   };
 
-  const handlePreview = () => {
+  const handleCreate = async () => {
     if (!whatsappNumber || !storeName || !template || !products.length) {
       toast({
         title: "Error",
@@ -73,14 +77,15 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
       return;
     }
     
-    const storeId = crypto.randomUUID();
-    localStorage.setItem(`store_${storeId}_name`, storeName);
-    localStorage.setItem(`store_${storeId}_template`, template);
-    localStorage.setItem(`store_${storeId}_products`, JSON.stringify(products));
-    
-    localStorage.setItem('shopkeeperWhatsapp', whatsappNumber.replace(/[^0-9+]/g, ''));
-    
-    window.location.href = `/${storeId}`;
+    setIsCreatingStore(true);
+    try {
+      await onComplete(sheetUrl, template, whatsappNumber, storeName, products);
+    } catch (error) {
+      console.error("Store creation failed:", error);
+      // Error handling is done in the onComplete function
+    } finally {
+      setIsCreatingStore(false);
+    }
   };
 
   return (
@@ -101,9 +106,14 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
             />
             <Button
               onClick={handleSheetSubmit}
-              disabled={isLoading}
+              disabled={isLoadingSheet}
             >
-              {isLoading ? "Connecting..." : "Connect Sheet"}
+              {isLoadingSheet ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Connecting...
+                </>
+              ) : "Connect Sheet"}
             </Button>
           </div>
 
@@ -179,31 +189,43 @@ export const StoreSetupWizard = ({ onComplete }: StoreSetupWizardProps) => {
         <div className="space-y-8">
           <h2 className="text-2xl font-serif">Connected Products</h2>
           <div className="max-h-[500px] overflow-y-auto space-y-4">
-            {products.map((product: any) => (
-              <div key={product.id} className="bg-white rounded-lg shadow-md p-4">
-                <div className="flex items-center gap-4">
-                  <img 
-                    src={product.image || "/placeholder.svg"} 
-                    alt={product.name} 
-                    className="w-20 h-20 object-cover rounded-lg shadow-sm" 
-                  />
-                  <div>
-                    <h3 className="font-semibold">{product.name}</h3>
-                    <p className="text-sm text-gray-500">${product.price.toFixed(2)}</p>
-                    <p className="text-xs text-gray-400 mt-1 line-clamp-2">{product.description}</p>
+            {products.length === 0 ? (
+              <div className="bg-gray-50 rounded-lg p-8 text-center text-gray-500">
+                No products connected yet. Connect your Google Sheet to import products.
+              </div>
+            ) : (
+              products.map((product: any) => (
+                <div key={product.id} className="bg-white rounded-lg shadow-md p-4">
+                  <div className="flex items-center gap-4">
+                    <img 
+                      src={product.image || "/placeholder.svg"} 
+                      alt={product.name} 
+                      className="w-20 h-20 object-cover rounded-lg shadow-sm" 
+                    />
+                    <div>
+                      <h3 className="font-semibold">{product.name}</h3>
+                      <p className="text-sm text-gray-500">${product.price.toFixed(2)}</p>
+                      <p className="text-xs text-gray-400 mt-1 line-clamp-2">{product.description}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 
         <Button
-          onClick={handlePreview}
+          onClick={handleCreate}
           className="col-span-full text-lg py-6"
           size="lg"
+          disabled={isCreatingStore || products.length === 0}
         >
-          Preview Store
+          {isCreatingStore ? (
+            <>
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              Creating Store...
+            </>
+          ) : "Create Your Store"}
         </Button>
       </motion.div>
     </div>

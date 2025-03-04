@@ -12,6 +12,7 @@ interface StoreViewProps {
   products: any[];
   currentStoreId: string;
   onDeploy: (storeId: string) => void;
+  isDeploying?: boolean;
 }
 
 export const StoreView = ({
@@ -20,15 +21,12 @@ export const StoreView = ({
   products,
   currentStoreId,
   onDeploy,
+  isDeploying = false,
 }: StoreViewProps) => {
-  const [isDeploying, setIsDeploying] = useState(false);
 
   const handleDeploy = async () => {
-    setIsDeploying(true);
-    try {
+    if (!isDeploying) {
       await onDeploy(currentStoreId);
-    } finally {
-      setIsDeploying(false);
     }
   };
 
@@ -59,18 +57,24 @@ export const StoreView = ({
         <div className="fixed top-4 right-4 z-50">
           <Cart />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-          {products.map((product: any) => (
-            <ProductCard
-              key={product.id}
-              id={product.id}
-              name={product.name}
-              price={product.price}
-              description={product.description || ''}
-              imageUrl={product.image || ''}
-            />
-          ))}
-        </div>
+        {products.length === 0 ? (
+          <div className="py-20 text-center">
+            <p className="text-xl text-gray-500">No products found for this store.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+            {products.map((product: any) => (
+              <ProductCard
+                key={product.id}
+                id={product.id}
+                name={product.name}
+                price={product.price}
+                description={product.description || ''}
+                imageUrl={product.image || ''}
+              />
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );
