@@ -2,9 +2,13 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
+
+type Product = Database['public']['Tables']['products']['Row'];
+type Store = Database['public']['Tables']['stores']['Row'];
 
 export const useStoreData = () => {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [template, setTemplate] = useState("minimal");
   const [storeName, setStoreName] = useState("");
   const [isSetupComplete, setIsSetupComplete] = useState(false);
@@ -38,7 +42,7 @@ export const useStoreData = () => {
           return;
         }
 
-        // Fetch the store data from Supabase
+        // Fetch the store data from Supabase with proper typing
         const { data: store, error: storeError } = await supabase
           .from('stores')
           .select('*')
@@ -66,7 +70,6 @@ export const useStoreData = () => {
             variant: "destructive",
           });
           
-          // Only redirect if we're not on the setup page
           if (window.location.pathname !== '/') {
             setTimeout(() => {
               window.location.href = '/';
@@ -77,17 +80,17 @@ export const useStoreData = () => {
         }
 
         console.log('Store data fetched successfully:', store);
-        setTemplate(store.template || 'minimal');
+        setTemplate(store.template);
         setStoreName(store.name);
         setCurrentStoreId(store.id);
         setStoreStatus(store.status);
         setIsSetupComplete(true);
 
-        // Now fetch the products for this store
+        // Fetch products with proper typing
         const { data: storeProducts, error: productsError } = await supabase
           .from('products')
           .select('*')
-          .eq('storeId', storeId);
+          .eq('store_id', storeId);
 
         if (productsError) {
           console.error('Error fetching products:', productsError);
