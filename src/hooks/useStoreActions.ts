@@ -35,40 +35,33 @@ export const useStoreActions = () => {
         throw new Error('Store not found');
       }
 
-      console.log('Store verified, invoking deploy function...');
+      console.log('Store verified, updating status...');
       
-      // Log the function URL being used
-      console.log('Function URL:', `${supabase.functions.url}/deploy-store`);
+      // Instead of calling an Edge Function, just update the store status directly
+      const { data: updatedStore, error: updateError } = await supabase
+        .from('stores')
+        .update({ status: 'deployed' })
+        .eq('id', storeId)
+        .select()
+        .single();
       
-      const { data, error } = await supabase.functions.invoke('deploy-store', {
-        body: { storeId },
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      console.log('Function response:', { data, error });
-
-      if (error) {
-        console.error('Function invocation error:', error);
-        toast({
-          title: "Error",
-          description: error.message || "Failed to deploy store",
-          variant: "destructive",
-        });
-        return;
+      if (updateError) {
+        console.error('Store update error:', updateError);
+        throw new Error(`Failed to update store: ${updateError.message}`);
       }
-
-      console.log('Deployment successful:', data);
+      
+      console.log('Store deployed successfully:', updatedStore);
+      
       toast({
         title: "Success!",
         description: "Store deployed successfully!",
       });
 
-      if (data?.url) {
-        console.log('Redirecting to:', data.url);
-        window.location.href = data.url;
-      }
+      // Redirect to the store page
+      const storeUrl = `${window.location.origin}/${storeId}`;
+      console.log('Redirecting to:', storeUrl);
+      window.location.href = storeUrl;
+      
     } catch (error: any) {
       console.error('Deployment error:', error);
       toast({
@@ -126,26 +119,41 @@ export const useStoreActions = () => {
 
       console.log('Store created successfully:', storeData);
 
-      const productsWithStoreId = initialProducts.map(product => ({
-        id: uuidv4(),
-        store_id: storeId,
-        name: product.name,
-        price: product.price,
-        description: product.description,
-        image: product.image
-      }));
-
-      const { data: productsData, error: productsError } = await supabase
-        .from('products')
-        .insert(productsWithStoreId)
-        .select();
-
-      if (productsError) {
-        console.error('Error creating products:', productsError);
-        throw productsError;
+      // Process products in chunks to avoid request size limits
+      const CHUNK_SIZE = 50;
+      const productChunks = [];
+      
+      for (let i = 0; i < initialProducts.length; i += CHUNK_SIZE) {
+        productChunks.push(initialProducts.slice(i, i + CHUNK_SIZE));
       }
+      
+      console.log(`Processing ${productChunks.length} product chunks`);
+      
+      for (let i = 0; i < productChunks.length; i++) {
+        const chunk = productChunks[i];
+        console.log(`Processing chunk ${i+1}/${productChunks.length} with ${chunk.length} products`);
+        
+        const productsWithStoreId = chunk.map(product => ({
+          id: uuidv4(),
+          store_id: storeId,
+          name: product.name,
+          price: product.price,
+          description: product.description || '',
+          image: product.image || ''
+        }));
 
-      console.log('Products created successfully:', productsData);
+        const { data: productsData, error: productsError } = await supabase
+          .from('products')
+          .insert(productsWithStoreId)
+          .select();
+
+        if (productsError) {
+          console.error(`Error creating products chunk ${i+1}:`, productsError);
+          throw productsError;
+        }
+
+        console.log(`Products chunk ${i+1} created successfully:`, productsData);
+      }
 
       if (sheetUrl) {
         const { error: sheetError } = await supabase
@@ -154,8 +162,7 @@ export const useStoreActions = () => {
             store_id: storeId,
             spreadsheet_url: sheetUrl,
             spreadsheet_type: 'google'
-          })
-          .select();
+          });
 
         if (sheetError) {
           console.error('Error creating spreadsheet connection:', sheetError);
@@ -170,6 +177,7 @@ export const useStoreActions = () => {
         description: "Store created successfully!",
       });
 
+      // Redirect to the store page
       const previewUrl = `${window.location.origin}/${storeId}`;
       console.log('Redirecting to:', previewUrl);
       window.location.href = previewUrl;
