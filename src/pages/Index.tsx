@@ -12,6 +12,7 @@ const Index = () => {
     storeName,
     isSetupComplete,
     currentStoreId,
+    storeStatus,
     isLoading,
     error,
   } = useStoreData();
@@ -59,6 +60,7 @@ const Index = () => {
       currentStoreId={currentStoreId!}
       onDeploy={handleDeploy}
       isDeploying={isProcessing}
+      storeStatus={storeStatus}
     />
   );
 };

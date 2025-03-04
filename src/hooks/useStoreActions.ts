@@ -35,16 +35,22 @@ export const useStoreActions = () => {
         throw new Error(`Store creation failed: ${storeError.message}`);
       }
 
+      if (!storeData) {
+        throw new Error("Store was created but no data was returned");
+      }
+
       console.log("Store created successfully:", storeData);
       const storeId = storeData.id;
 
-      // Step 2: Insert products in smaller batches to avoid large payload issues
+      // Step 2: Insert products with the correct store_id
       if (initialProducts.length > 0) {
         const productsWithStoreId = initialProducts.map(product => ({
           ...product,
-          store_id: storeId
+          storeId: storeId // Make sure we're using the right field name matching the schema
         }));
 
+        console.log("Inserting products with storeId:", storeId);
+        
         const batchSize = 10;
         for (let i = 0; i < productsWithStoreId.length; i += batchSize) {
           const batch = productsWithStoreId.slice(i, i + batchSize);
@@ -84,7 +90,12 @@ export const useStoreActions = () => {
         });
       }
 
-      // Successfully created the store, redirect to store page
+      toast({
+        title: "Success",
+        description: "Store created successfully! Redirecting to store page.",
+      });
+
+      // Redirect to the new store page
       window.location.href = `/${storeId}`;
       
     } catch (error: any) {
@@ -103,24 +114,26 @@ export const useStoreActions = () => {
     console.log("Deploying store with ID:", storeId);
 
     try {
-      // Verify the store exists before attempting to deploy
-      const { data: store, error: storeCheckError } = await supabase
+      // First verify the store exists
+      const { data: store, error: checkError } = await supabase
         .from("stores")
-        .select("id")
+        .select("id, name, template")
         .eq("id", storeId)
         .maybeSingle();
 
-      if (storeCheckError) {
-        console.error("Error checking store:", storeCheckError);
-        throw new Error(`Failed to verify store: ${storeCheckError.message}`);
+      if (checkError) {
+        console.error("Error checking store:", checkError);
+        throw new Error(`Failed to verify store: ${checkError.message}`);
       }
 
       if (!store) {
         console.error("Store not found with ID:", storeId);
-        throw new Error("Store not found");
+        throw new Error("Store not found in database");
       }
 
-      // Update the store status directly in Supabase
+      console.log("Store found, proceeding with deployment:", store);
+
+      // Update the store status to 'deployed'
       const { error: updateError } = await supabase
         .from("stores")
         .update({ status: "deployed" })
@@ -131,13 +144,15 @@ export const useStoreActions = () => {
         throw new Error(`Failed to update store status: ${updateError.message}`);
       }
 
+      console.log("Store marked as deployed in database");
+
       toast({
         title: "Deployment Complete",
         description: "Your store has been successfully deployed!",
       });
 
-      // Refresh the page to show the deployed state
-      window.location.reload();
+      // Success! Redirect to the store page
+      window.location.href = `/${storeId}`;
 
     } catch (error: any) {
       console.error("Deployment failed:", error);

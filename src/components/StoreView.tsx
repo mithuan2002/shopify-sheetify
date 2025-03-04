@@ -4,7 +4,7 @@ import { StoreHeader } from "@/components/StoreHeader";
 import { Cart } from "@/components/Cart";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
-import { Loader2 } from "lucide-react";
+import { Loader2, CheckCircle } from "lucide-react";
 
 interface StoreViewProps {
   storeName: string;
@@ -13,6 +13,7 @@ interface StoreViewProps {
   currentStoreId: string;
   onDeploy: (storeId: string) => void;
   isDeploying?: boolean;
+  storeStatus?: string | null;
 }
 
 export const StoreView = ({
@@ -22,6 +23,7 @@ export const StoreView = ({
   currentStoreId,
   onDeploy,
   isDeploying = false,
+  storeStatus = null,
 }: StoreViewProps) => {
 
   const handleDeploy = async () => {
@@ -30,28 +32,37 @@ export const StoreView = ({
     }
   };
 
+  const isDeployed = storeStatus === "deployed";
+
   return (
     <div className="min-h-screen bg-background">
       <StoreHeader 
         storeName={storeName}
         template={template}
-        isPreview={true}
+        isPreview={!isDeployed}
       />
       <div className="container mx-auto px-4 py-4 flex justify-end">
-        <Button
-          onClick={handleDeploy}
-          disabled={!currentStoreId || isDeploying}
-          className="ml-auto block"
-        >
-          {isDeploying ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Deploying...
-            </>
-          ) : (
-            "Deploy Store"
-          )}
-        </Button>
+        {isDeployed ? (
+          <div className="flex items-center ml-auto">
+            <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+            <span className="text-green-600">Store Deployed</span>
+          </div>
+        ) : (
+          <Button
+            onClick={handleDeploy}
+            disabled={!currentStoreId || isDeploying}
+            className="ml-auto block"
+          >
+            {isDeploying ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Deploying...
+              </>
+            ) : (
+              "Deploy Store"
+            )}
+          </Button>
+        )}
       </div>
       <main className="container mx-auto px-4 py-8">
         <div className="fixed top-4 right-4 z-50">
