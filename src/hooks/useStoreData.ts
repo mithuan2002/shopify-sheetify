@@ -1,11 +1,23 @@
 
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import type { Database } from "@/integrations/supabase/types";
 
-type Product = Database['public']['Tables']['products']['Row'];
-type Store = Database['public']['Tables']['stores']['Row'];
+type Product = {
+  id: string;
+  name: string;
+  price: number;
+  description: string | null;
+  image: string | null;
+  store_id: string | null;
+};
+
+type Store = {
+  id: string;
+  name: string;
+  template: string;
+  status: string | null;
+  whatsapp: string | null;
+};
 
 export const useStoreData = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -42,31 +54,17 @@ export const useStoreData = () => {
           return;
         }
 
-        // Fetch the store data from Supabase with proper typing
-        const { data: store, error: storeError } = await supabase
-          .from('stores')
-          .select('*')
-          .eq('id', storeId)
-          .maybeSingle();
-
-        if (storeError) {
-          console.error('Error fetching store:', storeError);
-          setError(`Failed to fetch store data: ${storeError.message}`);
-          toast({
-            title: "Error",
-            description: `Failed to fetch store data: ${storeError.message}`,
-            variant: "destructive",
-          });
-          setIsLoading(false);
-          return;
-        }
+        // Get store data from localStorage
+        const storedStores = localStorage.getItem('stores');
+        const stores = storedStores ? JSON.parse(storedStores) : [];
+        const store = stores.find((s: Store) => s.id === storeId);
 
         if (!store) {
           console.log('No store found with ID:', storeId);
           setError("Store not found");
           toast({
             title: "Store Not Found",
-            description: "The requested store could not be found in the database",
+            description: "The requested store could not be found",
             variant: "destructive",
           });
           
@@ -86,23 +84,13 @@ export const useStoreData = () => {
         setStoreStatus(store.status);
         setIsSetupComplete(true);
 
-        // Fetch products with proper typing
-        const { data: storeProducts, error: productsError } = await supabase
-          .from('products')
-          .select('*')
-          .eq('store_id', storeId);
+        // Get products for this store from localStorage
+        const storedProducts = localStorage.getItem('products');
+        const allProducts = storedProducts ? JSON.parse(storedProducts) : [];
+        const storeProducts = allProducts.filter((p: Product) => p.store_id === storeId);
 
-        if (productsError) {
-          console.error('Error fetching products:', productsError);
-          toast({
-            title: "Warning",
-            description: `Failed to fetch products: ${productsError.message}`,
-            variant: "destructive",
-          });
-        } else {
-          console.log('Products fetched successfully:', storeProducts);
-          setProducts(storeProducts || []);
-        }
+        console.log('Products fetched successfully:', storeProducts);
+        setProducts(storeProducts || []);
 
         setIsLoading(false);
       } catch (error: any) {

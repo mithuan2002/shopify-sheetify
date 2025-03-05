@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { v4 as uuidv4 } from "uuid";
 
 export const useStoreActions = () => {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -18,77 +18,57 @@ export const useStoreActions = () => {
     console.log("Starting store setup with:", { storeName, template, whatsappNumber });
     
     try {
-      // Step 1: Create the store record first
-      const { data: storeData, error: storeError } = await supabase
-        .from("stores")
-        .insert({
-          name: storeName,
-          template: template,
-          whatsapp: whatsappNumber,
-          status: "preview"
-        })
-        .select()
-        .single();
+      // Generate a unique ID for the store
+      const storeId = uuidv4();
 
-      if (storeError) {
-        console.error("Failed to create store:", storeError);
-        throw new Error(`Store creation failed: ${storeError.message}`);
-      }
+      // Create store data
+      const storeData = {
+        id: storeId,
+        name: storeName,
+        template: template,
+        whatsapp: whatsappNumber,
+        status: "preview"
+      };
 
-      if (!storeData) {
-        throw new Error("Store was created but no data was returned");
-      }
+      // Save store to localStorage
+      const existingStores = localStorage.getItem('stores');
+      const stores = existingStores ? JSON.parse(existingStores) : [];
+      stores.push(storeData);
+      localStorage.setItem('stores', JSON.stringify(stores));
 
       console.log("Store created successfully:", storeData);
-      const storeId = storeData.id;
 
-      // Step 2: Insert products with the correct store_id
+      // Add store_id to products and save to localStorage
       if (initialProducts.length > 0) {
         const productsWithStoreId = initialProducts.map(product => ({
           ...product,
-          storeId: storeId // Make sure we're using the right field name matching the schema
-        }));
-
-        console.log("Inserting products with storeId:", storeId);
-        
-        const batchSize = 10;
-        for (let i = 0; i < productsWithStoreId.length; i += batchSize) {
-          const batch = productsWithStoreId.slice(i, i + batchSize);
-          const { error: productsError } = await supabase
-            .from("products")
-            .insert(batch);
-
-          if (productsError) {
-            console.error(`Failed to insert products batch ${i}:`, productsError);
-            toast({
-              title: "Warning",
-              description: `Some products may not have been saved: ${productsError.message}`,
-              variant: "destructive",
-            });
-          }
-        }
-        console.log("Products inserted successfully");
-      }
-
-      // Step 3: Save spreadsheet connection info
-      const { error: connectionError } = await supabase
-        .from("spreadsheet_connections")
-        .insert({
           store_id: storeId,
-          spreadsheet_url: sheetUrl,
-          spreadsheet_type: "google",
-          whatsapp: whatsappNumber,
-          template: template,
-        });
-
-      if (connectionError) {
-        console.error("Failed to save spreadsheet connection:", connectionError);
-        toast({
-          title: "Warning",
-          description: "Spreadsheet connection details may not have been saved",
-          variant: "destructive",
-        });
+          id: uuidv4()
+        }));
+        
+        console.log("Saving products with storeId:", storeId);
+        
+        const existingProducts = localStorage.getItem('products');
+        const products = existingProducts ? JSON.parse(existingProducts) : [];
+        localStorage.setItem('products', JSON.stringify([...products, ...productsWithStoreId]));
+        
+        console.log("Products saved successfully");
       }
+
+      // Save spreadsheet connection info
+      const connectionData = {
+        id: uuidv4(),
+        store_id: storeId,
+        spreadsheet_url: sheetUrl,
+        spreadsheet_type: "google",
+        whatsapp: whatsappNumber,
+        template: template,
+      };
+      
+      const existingConnections = localStorage.getItem('spreadsheet_connections');
+      const connections = existingConnections ? JSON.parse(existingConnections) : [];
+      connections.push(connectionData);
+      localStorage.setItem('spreadsheet_connections', JSON.stringify(connections));
 
       toast({
         title: "Success",
@@ -114,44 +94,29 @@ export const useStoreActions = () => {
     console.log("Deploying store with ID:", storeId);
 
     try {
-      // First verify the store exists
-      const { data: store, error: checkError } = await supabase
-        .from("stores")
-        .select("id, name, template")
-        .eq("id", storeId)
-        .maybeSingle();
-
-      if (checkError) {
-        console.error("Error checking store:", checkError);
-        throw new Error(`Failed to verify store: ${checkError.message}`);
+      // Get stores from localStorage
+      const storedStores = localStorage.getItem('stores');
+      const stores = storedStores ? JSON.parse(storedStores) : [];
+      
+      // Find the store
+      const storeIndex = stores.findIndex((store: any) => store.id === storeId);
+      
+      if (storeIndex === -1) {
+        throw new Error("Store not found in localStorage");
       }
+      
+      // Update the store status
+      stores[storeIndex].status = "deployed";
+      localStorage.setItem('stores', JSON.stringify(stores));
 
-      if (!store) {
-        console.error("Store not found with ID:", storeId);
-        throw new Error("Store not found in database");
-      }
-
-      console.log("Store found, proceeding with deployment:", store);
-
-      // Update the store status to 'deployed'
-      const { error: updateError } = await supabase
-        .from("stores")
-        .update({ status: "deployed" })
-        .eq("id", storeId);
-
-      if (updateError) {
-        console.error("Error updating store status:", updateError);
-        throw new Error(`Failed to update store status: ${updateError.message}`);
-      }
-
-      console.log("Store marked as deployed in database");
+      console.log("Store marked as deployed in localStorage");
 
       toast({
         title: "Deployment Complete",
         description: "Your store has been successfully deployed!",
       });
 
-      // Success! Redirect to the store page
+      // Redirect to the store page
       window.location.href = `/${storeId}`;
 
     } catch (error: any) {

@@ -6,7 +6,6 @@ import { StoreHeader } from "@/components/StoreHeader";
 import { Cart } from "@/components/Cart";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 const StorePage = () => {
   const { storeId } = useParams<{ storeId: string }>();
@@ -27,26 +26,10 @@ const StorePage = () => {
       try {
         console.log('Fetching store data for ID:', storeId);
         
-        const { data: store, error: storeError } = await supabase
-          .from('stores')
-          .select(`
-            *,
-            products (*)
-          `)
-          .eq('id', storeId)
-          .maybeSingle();
-
-        if (storeError) {
-          console.error('Error fetching store:', storeError);
-          setError('Failed to fetch store data');
-          toast({
-            title: "Error",
-            description: "Failed to fetch store data",
-            variant: "destructive",
-          });
-          setIsLoading(false);
-          return;
-        }
+        // Get store from localStorage
+        const storedStores = localStorage.getItem('stores');
+        const stores = storedStores ? JSON.parse(storedStores) : [];
+        const store = stores.find((s: any) => s.id === storeId);
 
         if (!store) {
           console.log('No store found with ID:', storeId);
@@ -60,11 +43,16 @@ const StorePage = () => {
           return;
         }
 
+        // Get products for this store
+        const storedProducts = localStorage.getItem('products');
+        const allProducts = storedProducts ? JSON.parse(storedProducts) : [];
+        const storeProducts = allProducts.filter((p: any) => p.store_id === storeId);
+
         console.log('Store data fetched successfully:', store);
         setStoreData({
           name: store.name,
           template: store.template,
-          products: store.products || []
+          products: storeProducts || []
         });
         setIsLoading(false);
       } catch (error) {
